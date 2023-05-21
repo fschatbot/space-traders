@@ -111,7 +111,7 @@ function CallEndPoint({ endpoint, token, body, method, params, limit, page }) {
 
 	// Building the options
 	const options = {
-		method: method || endpoint.type,
+		method: method || endpoint.type || "GET",
 		headers: {
 			"Content-Type": "application/json",
 		},

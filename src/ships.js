@@ -1,3 +1,3 @@
 export default function Ships() {
-	return <></>;
+	return <>Hello mom! 🚀</>;
 }

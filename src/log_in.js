@@ -6,7 +6,9 @@ import "./styles/login.css";
 export default function LogInModal() {
 	// Check if the person is logged in
 	const navigate = useNavigate();
+
 	useEffect(() => {
+		if (!navigate) return;
 		if (getToken()) navigate("/ships");
 	}, [navigate]);
 
@@ -30,8 +32,8 @@ export default function LogInModal() {
 		localStorage.setItem("token", tokenRef.current.value);
 		CallEndPoint({ endpoint: ENDPOINTS.AGENT_DATA })
 			.then((response) => {
-				localStorage.setItem("token", response.token);
 				console.log(response);
+				navigate("/ships");
 			})
 			.catch((response) => setTokenError(response.error.message)); // Set the first error message
 	}

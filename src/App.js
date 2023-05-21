@@ -11,7 +11,7 @@ function App() {
 			<Routes>
 				<Route path="/login" element={<LogIn />} />
 				<Route
-					path="/ship"
+					path="/ships"
 					element={
 						<PageWrapper>
 							<Ships />
