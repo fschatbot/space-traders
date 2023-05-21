@@ -1,25 +1,38 @@
-import logo from './logo.svg';
-import './App.css';
+import "./App.css";
+import LogIn from "./log_in";
+import { Route, Routes, Navigate } from "react-router-dom";
+import { getToken } from "./spaceAPI";
+import NavBar from "./Navbar";
+import Ships from "./ships";
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+	return (
+		<div className="App">
+			<Routes>
+				<Route path="/login" element={<LogIn />} />
+				<Route
+					path="/ship"
+					element={
+						<PageWrapper>
+							<Ships />
+						</PageWrapper>
+					}
+				/>
+				<Route path="*" element={<Navigate to="/login" replace />} />
+			</Routes>
+		</div>
+	);
 }
+
+const PageWrapper = (props) => {
+	if (!getToken()) return <Navigate to="/login" replace />;
+
+	return (
+		<>
+			<NavBar />
+			{props.children}
+		</>
+	);
+};
 
 export default App;
