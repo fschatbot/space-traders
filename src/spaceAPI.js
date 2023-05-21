@@ -1,3 +1,5 @@
+import { createContext } from "react";
+
 const ENDPOINTS = {
 	BASE: "https://api.spacetraders.io/v2/",
 	CREATE_AGENT: {
@@ -183,5 +185,7 @@ window.exposeRequests = function () {
 };
 
 window.exposeRequests();
+
+export const DataProvider = createContext({});
 
 export { CallEndPoint, ENDPOINTS, getToken, responses, errors };

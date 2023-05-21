@@ -1,0 +1,13 @@
+.navbar {
+	@apply h-20 w-full bg-slate-800
+	flex justify-around items-center
+	text-white font-bold;
+}
+
+.name {
+	@apply px-6 py-2 bg-slate-700 rounded-xl border border-slate-600;
+}
+
+.active {
+	@apply text-yellow-500 tracking-wider transition-colors;
+}

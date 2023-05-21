@@ -1,25 +1,30 @@
-import "./App.css";
+import "./styles/App.css";
 import LogIn from "./log_in";
 import { Route, Routes, Navigate } from "react-router-dom";
-import { getToken } from "./spaceAPI";
+import { DataProvider, getToken } from "./spaceAPI";
 import NavBar from "./Navbar";
 import Ships from "./ships";
+import { useState } from "react";
 
 function App() {
+	const [store, setStore] = useState({});
+
 	return (
 		<div className="App">
-			<Routes>
-				<Route path="/login" element={<LogIn />} />
-				<Route
-					path="/ships"
-					element={
-						<PageWrapper>
-							<Ships />
-						</PageWrapper>
-					}
-				/>
-				<Route path="*" element={<Navigate to="/login" replace />} />
-			</Routes>
+			<DataProvider.Provider value={{ store, setStore }}>
+				<Routes>
+					<Route path="/login" element={<LogIn />} />
+					<Route
+						path="/ships"
+						element={
+							<PageWrapper>
+								<Ships />
+							</PageWrapper>
+						}
+					/>
+					<Route path="*" element={<Navigate to="/login" replace />} />
+				</Routes>
+			</DataProvider.Provider>
 		</div>
 	);
 }
