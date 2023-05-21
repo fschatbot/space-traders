@@ -1,5 +1,3 @@
-import { useNavigate } from "react-router-dom";
-
 const ENDPOINTS = {
 	BASE: "https://api.spacetraders.io/v2/",
 	CREATE_AGENT: {
@@ -104,7 +102,7 @@ function CallEndPoint({ endpoint, token, body, method, params, limit, page }) {
 			throw new Error(`Missing parameters: ${missing.join(", ")}`);
 		}
 	}
-	const url = ENDPOINTS.BASE + endpointURL;
+	let url = ENDPOINTS.BASE + endpointURL;
 
 	const urlEndpoints = [];
 	if (limit) urlEndpoints.push(`limit=${limit}`);
