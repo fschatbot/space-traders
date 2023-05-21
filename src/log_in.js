@@ -42,7 +42,7 @@ export default function LogInModal() {
 		<div className="logInContainer">
 			<div className="modal">
 				<h1 className="title">
-					Welcome <span className="text-yellow-600">Space Trader</span>
+					Welcome <span className="text-yellow-600">Space Trader</span> 🚀
 				</h1>
 				<input type="text" placeholder="Enter Name" id="username" ref={nameRef} />
 				<label htmlFor="username" className="error">
