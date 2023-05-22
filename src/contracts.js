@@ -1,6 +1,5 @@
 import { useContext, useEffect } from "react";
 import { CallEndPoint, DataProvider, ENDPOINTS } from "./spaceAPI";
-import { toTitleCase } from "./utils";
 import "./styles/contracts.css";
 
 export default function Contracts() {
@@ -33,7 +32,7 @@ export default function Contracts() {
 									{contract.terms.deliver.map((item) => {
 										return (
 											<li key={item.tradeSymbol}>
-												{item.unitsRequired - item.unitsFulfilled} {toTitleCase(item.tradeSymbol)} to {item.destinationSymbol}
+												{item.unitsRequired - item.unitsFulfilled} {item.tradeSymbol.replace("_", " ").title()} to {item.destinationSymbol}
 											</li>
 										);
 									})}
