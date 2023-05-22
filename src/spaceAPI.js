@@ -1,5 +1,15 @@
 import { createContext } from "react";
 
+// These are all the known endpoints for the SpaceTraders API
+// Normal Strings are basic get requests (can be opened in the browser itself)
+// Except the endpoints with `my` as they require token
+// Type - The type of request that needs to be made
+// Url - The endpoint url (if anything needs to be replaced it will have :<name>)
+// body - The things that are required in the body of the request (if any)
+// If its a dict then the key is the name of the body and the value is the list of possible values
+// "?" at the start means that body part is optional
+// Token - If the endpoint requires a token
+// Requires - The things that are required to make the request (if any)
 const ENDPOINTS = {
 	BASE: "https://api.spacetraders.io/v2/",
 	CREATE_AGENT: {
@@ -7,12 +17,17 @@ const ENDPOINTS = {
 		body: ["symbol", "faction"],
 		url: "register",
 	},
+	AGENT_SHIPS: "my/ships",
 	AGENT_DATA: "my/agent",
 	AGENT_FACTION: "my/factions",
 	FACTIONS: "factions",
 	AGENT_CONTRACTS: "my/contracts",
+	CONTRACT: "my/contracts/:contract",
 	SYSTEMS: "systems",
+	SYSTEM: "systems/:system",
 	WAYPOINTS: "systems/:system/waypoints",
+	WAYPOINT: "systems/:system/waypoints/:waypoint",
+	JUMP_GATE: "systems/:system/waypoints/:waypoint/jump-gate",
 	ORBIT: {
 		type: "POST",
 		url: "my/systems/:ship/orbit",
@@ -26,6 +41,7 @@ const ENDPOINTS = {
 		body: { flightMode: ["CRUISE", "BURN", "DRIFT", "STEALTH"] },
 		url: "my/ships/:ship/nav",
 	},
+	SHIP_MODE: "my/ships/:ship/nav",
 	NAVIGATE: {
 		type: "POST",
 		body: ["waypointSymbol"],
@@ -70,7 +86,25 @@ const ENDPOINTS = {
 		body: ["shipType", "waypointSymbol"],
 		url: "my/ships",
 	},
-	CARGO: "my/ships/:ship",
+	PURCHASE_CARGO: {
+		type: "POST",
+		body: ["symbol", "units"],
+		url: "my/ships/:ship/purchase",
+	},
+	TRANSFER_CARGO: {
+		type: "POST",
+		body: ["tradeSymbol", "units", "shipSymbol"],
+		url: "my/ships/:ship/transfer",
+	},
+	NEGOTIATE_CONTRACT: {
+		type: "POST",
+		url: "my/ships/:ship/negotiate/contract",
+	},
+	GET_SHIP: "my/ships/:ship",
+	CARGO: "my/ships/:ship/cargo",
+	REFINE: { type: "POST", url: "my/ships/:ship/refine", body: ["produce"] },
+	CHART: { type: "POST", url: "my/ships/:ship/chart" },
+	EJECT_CARGO: { type: "POST", url: "my/ships/:ship/jettison", body: ["symbol", "units"] },
 	SELL: {
 		type: "POST",
 		requires: ["DOCKED"],
@@ -86,12 +120,37 @@ const ENDPOINTS = {
 		type: "POST",
 		url: "my/contracts/:contract/fulfill",
 	},
+	SCAN_SYSTEM: {
+		type: "POST",
+		url: "my/ships/:ship/scan/systems",
+	},
+	SCAN_WAYPOINT: {
+		type: "POST",
+		url: "my/ships/:ship/scan/waypoints",
+	},
+	SCAN_SHIP: {
+		type: "POST",
+		url: "my/ships/:ship/scan/ships",
+	},
+	REFUEL: {
+		type: "POST",
+		url: "my/ships/:ship/refuel",
+	},
 };
 
 const responses = [];
 const errors = [];
 
-function CallEndPoint({ endpoint, token, body, method, params, limit, page }) {
+// This function is responsible for calling the API
+// token: boolean - If the endpoint requires a token
+// body: object - The body of the request
+// method: string - The method of the request
+// params: object - This will contain the :param replacements for the url
+// limit: number - Add a url payload for the item limit (pagination)
+// page: number - Add a url payload for the page number (pagination)
+// pageAll: boolean - If the endpoint should be paginated until all items are fetched (pagination)
+// remember: boolean - If the response should be saved in the indexDB
+function CallEndPoint({ endpoint, token, body, method, params, limit, page, pageAll, remember }) {
 	// Building the URL
 	let endpointURL = typeof endpoint === "string" ? endpoint : endpoint.url;
 	if (params) {
@@ -189,3 +248,9 @@ window.exposeRequests();
 export const DataProvider = createContext({});
 
 export { CallEndPoint, ENDPOINTS, getToken, responses, errors };
+
+// TODO:
+// - Cache responses
+// - Check if the ship has the required items
+// - Full Pagination (pageAll)
+// - Adding remember tag to endpoints
