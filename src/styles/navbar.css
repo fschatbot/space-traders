@@ -1,11 +1,12 @@
 .navbar {
-	@apply h-20 w-full bg-slate-800
+	@apply h-20 w-full bg-slate-900
 	flex justify-around items-center
-	text-white font-bold;
+	text-white font-bold
+	fixed top-0 left-0 z-50;
 }
 
 .name {
-	@apply px-6 py-2 bg-slate-700 rounded-xl border border-slate-600;
+	@apply px-6 py-2 bg-slate-800 rounded-xl border border-slate-700;
 }
 
 .active {

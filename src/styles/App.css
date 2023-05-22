@@ -1,3 +1,8 @@
 .App {
 	@apply min-h-screen;
 }
+
+.PageContainer {
+	@apply bg-slate-800 min-h-screen pt-20 overflow-y-auto
+	max-w-[100vw] overflow-x-clip;
+}
