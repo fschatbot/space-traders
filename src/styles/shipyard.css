@@ -1,0 +1,63 @@
+.shipYard > h1 {
+	@apply text-3xl text-white font-bold text-center my-5;
+}
+
+.searchBox {
+	@apply flex flex-row items-center justify-center;
+}
+
+.searchBox input {
+	@apply w-1/2 py-2 px-4 rounded-lg flex-grow rounded-r-none max-w-[25rem] outline-none;
+}
+
+.searchBox button {
+	@apply px-4 py-2 rounded-lg rounded-l-none bg-yellow-500;
+}
+
+.systems {
+	@apply flex flex-col items-center my-5 gap-1;
+}
+.system {
+	@apply rounded-[5px] bg-slate-700 w-[25rem] text-white
+	flex flex-row px-4 py-2 justify-between items-center
+	first-of-type:rounded-t-xl last:rounded-b-xl;
+}
+
+.system button {
+	@apply border border-slate-500 bg-slate-600 rounded-[5px] px-4 py-1;
+}
+
+/* Shipyard CSS */
+
+.shipShops {
+	@apply grid gap-10 m-10 grid-cols-3;
+}
+.shipShop {
+	@apply border border-slate-600 bg-slate-700
+	p-4 rounded-xl text-white
+	flex flex-col;
+}
+
+.shipShop button {
+	@apply w-fit ml-auto font-medium
+	px-4 py-2 rounded-lg text-white
+	
+	bg-slate-600 border border-slate-500
+	disabled:bg-green-700 disabled:border-green-600;
+}
+
+.shipShop ul {
+	@apply list-disc list-inside;
+}
+
+.shipShop h1 {
+	@apply text-xl font-medium mt-2;
+}
+
+.shipShop h2 {
+	@apply text-sm text-slate-200;
+}
+
+.shipShop .details {
+	@apply flex flex-row gap-5;
+}

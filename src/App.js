@@ -9,7 +9,11 @@ import Contracts from "./contracts";
 import ShipYard from "./shipyard";
 
 function App() {
-	const [store, setStore] = useState({});
+	const [store, setStore] = useState({
+		contracts: [],
+		name: "",
+		selectedSystem: "",
+	});
 	function updateStore(newStore) {
 		setStore((prev) => ({ ...prev, ...newStore }));
 	}
