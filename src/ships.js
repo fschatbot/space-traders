@@ -1,3 +1,9 @@
+import { useContext, useEffect } from "react";
+import { CallEndPoint, DataProvider, ENDPOINTS } from "./spaceAPI";
+import "./styles/ships.css";
+
 export default function Ships() {
-	return <>Hello mom! 🚀</>;
+	const { store, setStore } = useContext(DataProvider);
+	useEffect(() => {}, []);
+	return <>Ships... :construction:</>;
 }
