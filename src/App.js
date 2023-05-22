@@ -5,13 +5,17 @@ import { DataProvider, getToken } from "./spaceAPI";
 import NavBar from "./Navbar";
 import Ships from "./ships";
 import { useState } from "react";
+import Contracts from "./contracts";
 
 function App() {
 	const [store, setStore] = useState({});
+	function updateStore(newStore) {
+		setStore((prev) => ({ ...prev, ...newStore }));
+	}
 
 	return (
 		<div className="App">
-			<DataProvider.Provider value={{ store, setStore }}>
+			<DataProvider.Provider value={{ store, setStore, updateStore }}>
 				<Routes>
 					<Route path="/login" element={<LogIn />} />
 					<Route
@@ -19,6 +23,14 @@ function App() {
 						element={
 							<PageWrapper>
 								<Ships />
+							</PageWrapper>
+						}
+					/>
+					<Route
+						path="/contracts"
+						element={
+							<PageWrapper>
+								<Contracts />
 							</PageWrapper>
 						}
 					/>
@@ -35,7 +47,7 @@ const PageWrapper = (props) => {
 	return (
 		<>
 			<NavBar />
-			{props.children}
+			<div className="PageContainer">{props.children}</div>
 		</>
 	);
 };

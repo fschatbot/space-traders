@@ -4,9 +4,9 @@ import "./styles/navbar.css";
 import { useContext, useEffect, useState } from "react";
 
 export default function NavBar() {
-	const { store, setStore } = useContext(DataProvider);
+	const { store, updateStore } = useContext(DataProvider);
 	useEffect(() => {
-		if (!store.name) CallEndPoint({ endpoint: ENDPOINTS.AGENT_DATA }).then((response) => setStore((prev) => ({ ...prev, name: response.data.symbol })));
+		if (!store.name) CallEndPoint({ endpoint: ENDPOINTS.AGENT_DATA }).then((response) => updateStore({ name: response.data.symbol }));
 	}, []);
 
 	return (
