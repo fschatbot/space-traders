@@ -30,7 +30,7 @@
 /* Shipyard CSS */
 
 .shipShops {
-	@apply grid gap-10 m-10 grid-cols-3;
+	@apply grid gap-10 m-10 grid-cols-2;
 }
 .shipShop {
 	@apply border border-slate-600 bg-slate-700
@@ -38,7 +38,7 @@
 	flex flex-col;
 }
 
-.shipShop button {
+.shipShop > button {
 	@apply w-fit ml-auto font-medium
 	px-4 py-2 rounded-lg text-white
 	
@@ -51,7 +51,11 @@
 }
 
 .shipShop h1 {
-	@apply text-xl font-medium mt-2;
+	@apply text-xl font-medium;
+}
+
+.shipShop h2 + h1 {
+	@apply mt-2;
 }
 
 .shipShop h2 {
@@ -60,4 +64,12 @@
 
 .shipShop .details {
 	@apply flex flex-row gap-5;
+}
+
+.shipShop ul button {
+	@apply w-fit ml-auto mb-1
+	px-3 py-1 rounded-md text-white
+	
+	bg-slate-600 border border-slate-500
+	disabled:bg-green-700 disabled:border-green-600;
 }

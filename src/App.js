@@ -7,12 +7,15 @@ import Ships from "./ships";
 import { useState } from "react";
 import Contracts from "./contracts";
 import ShipYard from "./shipyard";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function App() {
 	const [store, setStore] = useState({
 		contracts: [],
 		name: "",
 		selectedSystem: "",
+		shipShop: {},
 	});
 	function updateStore(newStore) {
 		setStore((prev) => ({ ...prev, ...newStore }));
@@ -60,7 +63,10 @@ const PageWrapper = (props) => {
 	return (
 		<>
 			<NavBar />
-			<div className="PageContainer">{props.children}</div>
+			<div className="PageContainer">
+				{props.children}
+				<ToastContainer />
+			</div>
 		</>
 	);
 };

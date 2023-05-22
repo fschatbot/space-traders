@@ -1,5 +1,6 @@
 import { useContext, useEffect, useRef, useState } from "react";
 import { CallEndPoint, DataProvider, ENDPOINTS } from "./spaceAPI";
+import { toast } from "react-toastify";
 import "./styles/shipyard.css";
 
 export default function ShipYard() {
@@ -46,6 +47,7 @@ export default function ShipYard() {
 
 function ShowShipYards() {
 	const { store, updateStore } = useContext(DataProvider);
+	const [shopData, setShopData] = useState({});
 	const [shipYards, setShipYards] = useState([]);
 
 	useEffect(() => {
@@ -54,6 +56,12 @@ function ShowShipYards() {
 			setShipYards(validWayPoints);
 		});
 	}, [store.selectedSystem]);
+
+	function fetchShop(symbol) {
+		CallEndPoint({ endpoint: ENDPOINTS.SHIPYARD, params: { system: symbol.split("-").splice(0, 2).join("-"), waypoint: symbol } }).then((res) => {
+			setShopData({ ...shopData, [symbol]: res.data.shipTypes.map((ship) => ship.type) });
+		});
+	}
 
 	return (
 		<div className="shipShops">
@@ -76,17 +84,40 @@ function ShowShipYards() {
 								<h1>Ship yard Traits</h1>
 								<ul>
 									{shipYard.traits.map((trait) => (
-										<li>{trait.symbol.replaceAll("_", " ").title()}</li>
+										<li key={trait.symbol}>{trait.symbol.replaceAll("_", " ").title()}</li>
 									))}
 								</ul>
 							</div>
-							<div className="detail"></div>
+							{shopData[shipYard.symbol] && <ShowShop shopData={shopData[shipYard.symbol]} symbol={shipYard.symbol} />}
 						</div>
 
-						<button onClick={() => updateStore({ selectedShipYard: shipYard })}>Open Shop</button>
+						<button onClick={() => fetchShop(shipYard.symbol)}>Open Shop</button>
 					</div>
 				);
 			})}
+		</div>
+	);
+}
+
+function ShowShop({ shopData, symbol }) {
+	function purchase(ship) {
+		CallEndPoint({ endpoint: ENDPOINTS.PURCHASE_SHIP, body: { shipType: ship, waypointSymbol: symbol } }).then(() =>
+			toast(`A ${ship.replaceAll("_", " ").title().replace("Ship ", "")} ship has been Purchased`, {
+				theme: "dark",
+				type: "success",
+			})
+		);
+	}
+	return (
+		<div className="detail">
+			<h1>Shop</h1>
+			<ul>
+				{shopData.map((ship) => (
+					<li key={ship}>
+						<button onClick={() => purchase(ship)}>{ship.replaceAll("_", " ").title()}</button>
+					</li>
+				))}
+			</ul>
 		</div>
 	);
 }

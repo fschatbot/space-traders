@@ -4,7 +4,7 @@ import "./styles/contracts.css";
 
 export default function Contracts() {
 	const { store, updateStore } = useContext(DataProvider);
-	window.store = store; // Debug
+
 	useEffect(() => {
 		refreshContracts();
 	}, []);
