@@ -4,7 +4,7 @@ import "./styles/contracts.css";
 
 export default function Contracts() {
 	const { store, updateStore } = useContext(DataProvider);
-	window.store = store;
+	window.store = store; // Debug
 	useEffect(() => {
 		refreshContracts();
 	}, []);
@@ -43,7 +43,7 @@ export default function Contracts() {
 								<h2>{new Date(contract.terms.deadline).preset("hh:mm:ss DD/MM/YYYY")}</h2>
 							</div>
 						</div>
-						{!contract.accepted && <button onClick={() => CallEndPoint({ endpoint: ENDPOINTS.ACCEPT_CONTRACT, params: { contract: contract.id } })}>Accept</button>}
+						{!contract.accepted && <button onClick={() => CallEndPoint({ endpoint: ENDPOINTS.ACCEPT_CONTRACT, params: { contract: contract.id } }).then(() => refreshContracts())}>Accept</button>}
 						{contract.accepted && <button disabled>Accepted</button>}
 					</div>
 				);

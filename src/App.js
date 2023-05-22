@@ -6,6 +6,7 @@ import NavBar from "./Navbar";
 import Ships from "./ships";
 import { useState } from "react";
 import Contracts from "./contracts";
+import ShipYard from "./shipyard";
 
 function App() {
 	const [store, setStore] = useState({});
@@ -31,6 +32,14 @@ function App() {
 						element={
 							<PageWrapper>
 								<Contracts />
+							</PageWrapper>
+						}
+					/>
+					<Route
+						path="/shipyard"
+						element={
+							<PageWrapper>
+								<ShipYard />
 							</PageWrapper>
 						}
 					/>
