@@ -2,7 +2,7 @@
 	@apply absolute z-50 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2;
 }
 
-.modal {
+.logInContainer .modal {
 	@apply flex flex-col;
 }
 
@@ -29,6 +29,6 @@
 	@apply px-3;
 }
 
-.title {
+.logInContainer .title {
 	@apply text-3xl font-bold text-center text-gray-800 mb-10;
 }

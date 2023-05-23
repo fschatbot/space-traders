@@ -5,10 +5,10 @@
 	fixed top-0 left-0 z-50;
 }
 
-.name {
+.navbar .name {
 	@apply px-6 py-2 bg-slate-800 rounded-xl border border-slate-700;
 }
 
-.active {
+.navbar .active {
 	@apply text-yellow-500 tracking-wider transition-colors;
 }
