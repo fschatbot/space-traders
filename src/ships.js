@@ -5,6 +5,7 @@ import { BsEjectFill } from "react-icons/bs";
 import { BiCurrentLocation } from "react-icons/bi";
 import { HiOutlineLocationMarker, HiChevronDown, HiOutlineRefresh } from "react-icons/hi";
 import "./styles/ships.css";
+import { toast } from "react-toastify";
 
 export default function Ships() {
 	const { store, updateStore } = useContext(DataProvider);
@@ -23,6 +24,15 @@ export default function Ships() {
 }
 
 function ShowShip({ data }) {
+	const { store, updateStore } = useContext(DataProvider);
+
+	function refreshShip() {
+		CallEndPoint({ endpoint: ENDPOINTS.GET_SHIP, params: { ship: data.symbol } }).then((response) => {
+			const newShipDatas = store.ships.map((ship) => (ship.symbol === data.symbol ? response.data : ship));
+			toast.success("Ship data has been refreshed");
+			updateStore({ ships: newShipDatas });
+		});
+	}
 	console.log(data);
 	return (
 		<div className="shipContainer">
@@ -72,27 +82,43 @@ function ShowShip({ data }) {
 					</div>
 				</div>
 			</div>
-			<div className="actionGroup">
-				<button>Orbit</button>
-				<button>Deliver</button>
-				<div className="dropdownGroup">
-					<button className="flex items-center">
-						Cruise <HiChevronDown />
-					</button>
-					<div className="dropdown hidden">
-						<span>Burn</span>
-						<span>Drift</span>
-						<span>Stealth</span>
-					</div>
-				</div>
-				<button disabled>Refuel</button>
-				<button>Refine</button>
-				<button>Mine</button>
-				<button>Survey & Mine</button>
-			</div>
-			<button className="refresh" title="refresh data">
+			<ActionButtons data={data} refresh={refreshShip} />
+			<button className="refresh" title="refresh data" onClick={refreshShip}>
 				<HiOutlineRefresh />
 			</button>
+		</div>
+	);
+}
+
+function ActionButtons({ data, refresh }) {
+	const statusActionMap = {
+		DOCKED: "orbit",
+		IN_ORBIT: "dock",
+	};
+	function ToggleOrbit() {
+		const ExpectedStatus = statusActionMap[data.nav.status];
+		CallEndPoint({ endpoint: ExpectedStatus.toUpperCase(), params: { ship: data.symbol } })
+			.then((response) => toast.success(ExpectedStatus === "dock" ? "The ship is now docked." : "The ship is now in orbit."))
+			.then(refresh);
+	}
+	return (
+		<div className="actionGroup">
+			<button onClick={ToggleOrbit}>{statusActionMap[data.nav.status].title()}</button>
+			<button>Deliver</button>
+			<div className="dropdownGroup">
+				<button className="flex items-center">
+					Cruise <HiChevronDown />
+				</button>
+				<div className="dropdown hidden">
+					<span>Burn</span>
+					<span>Drift</span>
+					<span>Stealth</span>
+				</div>
+			</div>
+			<button disabled>Refuel</button>
+			<button>Refine</button>
+			<button>Mine</button>
+			<button>Survey & Mine</button>
 		</div>
 	);
 }

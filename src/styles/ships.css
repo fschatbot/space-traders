@@ -75,8 +75,8 @@
 	@apply border-red-400;
 }
 
-.shipContainer .navigation .navigateAction.loading * {
-	@apply animate-pulse;
+.pending {
+	@apply animate-pulse cursor-not-allowed;
 }
 
 .shipContainer .navigation .navigateAction input {
