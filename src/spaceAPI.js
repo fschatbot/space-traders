@@ -149,10 +149,12 @@ const errors = [];
 // limit: number - Add a url payload for the item limit (pagination)
 // page: number - Add a url payload for the page number (pagination)
 // pageAll: boolean - If the endpoint should be paginated until all items are fetched (pagination)
+// debug: boolean - Log certain data points to the console
 // remember: boolean - If the response should be saved in the indexDB
-function CallEndPoint({ endpoint, token, body, method, params, limit, page, pageAll, remember }) {
+function CallEndPoint({ endpoint, token, body, method, params, limit, page, pageAll, remember, debug = true }) {
 	// Building the URL
-	let endpointURL = typeof endpoint === "string" ? endpoint : endpoint.url;
+	// endpoint: ENDPOINT key string, ENDPOINT URL, ENDPOINT object
+	let endpointURL = typeof endpoint === "string" ? (endpoint in ENDPOINTS ? ENDPOINTS[endpoint]?.url || ENDPOINTS[endpoint] : endpoint) : endpoint.url;
 	if (params) {
 		for (const param in params) {
 			endpointURL = endpointURL.replace(`:${param}`, params[param]);
@@ -214,15 +216,17 @@ function CallEndPoint({ endpoint, token, body, method, params, limit, page, page
 		// TODO: Check if the user has the required items
 	}
 
-	console.log("Calling endpoint:", url, options);
+	debug && console.log("Calling endpoint:", url, options);
 	// Fetching the data
 	return fetch(url, options).then((response) => {
 		return response.json().then((data) => {
 			if (!response.ok || data.error) {
 				errors.push(data);
-				throw data;
+				debug && console.warn("Error:", data);
+				if (!debug) throw data;
 			} else {
 				responses.push(data);
+				debug && console.info("Response:", data);
 				return data;
 			}
 		});
