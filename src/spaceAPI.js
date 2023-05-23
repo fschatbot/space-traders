@@ -151,7 +151,7 @@ const errors = [];
 // pageAll: boolean - If the endpoint should be paginated until all items are fetched (pagination)
 // debug: boolean - Log certain data points to the console
 // remember: boolean - If the response should be saved in the indexDB
-function CallEndPoint({ endpoint, token, body, method, params, limit, page, pageAll, remember, debug = true }) {
+function CallEndPoint({ endpoint, token, body, method, params, limit, page, pageAll, remember, debug = false }) {
 	// Building the URL
 	// endpoint: ENDPOINT key string, ENDPOINT URL, ENDPOINT object
 	if (endpoint in ENDPOINTS) endpoint = ENDPOINTS[endpoint];

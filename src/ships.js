@@ -9,13 +9,20 @@ import { toast } from "react-toastify";
 
 export default function Ships() {
 	const { store, updateStore } = useContext(DataProvider);
-	useEffect(() => {
-		CallEndPoint({ endpoint: ENDPOINTS.AGENT_SHIPS }).then((response) => updateStore({ ships: response.data }));
-	}, []);
+	useEffect(refresh, []);
+
+	function refresh() {
+		CallEndPoint({ endpoint: ENDPOINTS.AGENT_SHIPS })
+			.then((response) => updateStore({ ships: response.data }))
+			.then(() => toast.success("Ships data has been refreshed"));
+	}
 
 	return (
 		<div className="shipsContainer">
-			<h1>Your Ships</h1>
+			<h1>
+				<HiOutlineRefresh className="cursor-pointer" title="refresh data" onClick={refresh} />
+				Your Ships
+			</h1>
 			{store.ships.map((shipdata) => (
 				<ShowShip data={shipdata} key={shipdata.symbol} />
 			))}
