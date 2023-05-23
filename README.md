@@ -1,70 +1,77 @@
-# Getting Started with Create React App
+# Space Traders
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Description
 
-## Available Scripts
+This a complete control dashboard for the API game [Space-Traders](https://spacetraders.io/). As time goes on, more features will be added to this dashboard and it will be made more sofisticated and automated (though the automation is long-term goal).
 
-In the project directory, you can run:
+## How to run
 
-### `npm start`
+1. Clone the repo `git clone https://github.com/fschatbot/space-traders.git`
+2. Install dependencies `npm clean-install`
+3. Run the app `npm start`
+4. Visit `http://localhost:3005/`
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## Features
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
-
-### `npm test`
-
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+- [x] Login/Register
+  - [ ] UI friendly
+- [ ] Contracts
+  - [x] View Details
+  - [x] Accept Contracts
+  - [ ] Monitor Progress
+  - [ ] Collection of rewards
+- [ ] Ships
+  - [ ] View Details
+  - [ ] View Cargo (Allow for ejection)
+  - [ ] Refuel (If Possible)
+  - [ ] Location, Destination (setting and viewing), Duration
+  - [ ] Mining (If possible)
+  - [ ] Switching ship modes
+  - [ ] Delivering Cargo for contracts
+  - [ ] Switching between Orbiting and Docking
+- [ ] Shipyard
+  - [ ] Search for systems
+    - [ ] Show system from contracts
+  - [ ] Show recently searched systems
+  - [x] Viewing shipyards inside the chosen system
+  - [x] Buying ships from the shop
+- [ ] Market Place
+  - [ ] Search for systems
+    - [ ] Suggest systems in which certain ships are presenet
+  - [ ] Show recently searched systems
+  - [ ] Viewing market place inside the chosen system
+  - [ ] Buying/Selling goods from the market place (if ship is present)
+- [ ] Map
+  - [ ] Interactive map (Move throught dragging, Zoom in/out through scrolling, limit the zooming out to 1.25 times the maximum veritical distance)
+  - [ ] Location Finder (Drop down search recommendations)
+  - [ ] Clicking on a system switches from System Map to Waypoint Map
+    - [ ] Includes the ships if they are inside
+  - [ ] Clicking on a waypoint will show information regarding it below the map canvas
+  - [ ] Ships will show their path between waypoints
+  - [ ] Ships will show their path between systems
+  - [ ] After a certain threshold of zooming in, the names of the systems will be visible
+  - [ ] Right-Clicking will zoom in till the names are visible
+- [ ] Space API
+  - [x] Has all the endpoints (as of 5/22/2023)
+    - [x] https://docs.spacetraders.io/
+    - [x] https://spacetraders.stoplight.io/docs/spacetraders/
+  - [ ] Type-Script (Not part of the foreseable future)
+  - [x] Session Storage of response data (error or not)
+  - [x] Global Access to these functions and variables (in console)
+  - [x] Power to overide endpoint data
+  - [ ] Inbuilt pagination (limit, page, ALL)
+  - [ ] Inbuilt error handling (certain extent) and error toast (optional)
+  - [ ] Caching certain responses in IndexedDB (optional: adding expiration time)
+  - [ ] `No-Token` Error Handling
+  - [ ] Rate Limiting (Optional)
+  - [ ] Checking if the endpoint can even be execute (highly optional)
+- [ ] Automation
+  - [ ] Auto-accepting and fulfilling contracts
+  - [ ] Auto-mining till cargo is full or a goal is reached
+- [ ] General
+  - [ ] Showcasing Name and Credits in Navbar
+  - [ ] Icons for almost everything
+  - [ ] Nice Themes and UX (Dark Mode Only)
+  - [ ] Icon and title
+  - [ ] Proper Manifest (Highly optional)
+  - [ ] Basic Meta data
