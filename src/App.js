@@ -16,6 +16,7 @@ function App() {
 		name: "",
 		selectedSystem: "",
 		shipShop: {},
+		ships: [],
 	});
 	function updateStore(newStore) {
 		setStore((prev) => ({ ...prev, ...newStore }));
