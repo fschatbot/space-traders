@@ -30,7 +30,7 @@ const ENDPOINTS = {
 	JUMP_GATE: "systems/:system/waypoints/:waypoint/jump-gate",
 	ORBIT: {
 		type: "POST",
-		url: "my/systems/:ship/orbit",
+		url: "my/ships/:ship/orbit",
 	},
 	DOCK: {
 		type: "POST",
@@ -154,7 +154,8 @@ const errors = [];
 function CallEndPoint({ endpoint, token, body, method, params, limit, page, pageAll, remember, debug = true }) {
 	// Building the URL
 	// endpoint: ENDPOINT key string, ENDPOINT URL, ENDPOINT object
-	let endpointURL = typeof endpoint === "string" ? (endpoint in ENDPOINTS ? ENDPOINTS[endpoint]?.url || ENDPOINTS[endpoint] : endpoint) : endpoint.url;
+	if (endpoint in ENDPOINTS) endpoint = ENDPOINTS[endpoint];
+	let endpointURL = typeof endpoint === "string" ? endpoint : endpoint.url;
 	if (params) {
 		for (const param in params) {
 			endpointURL = endpointURL.replace(`:${param}`, params[param]);
