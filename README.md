@@ -7,9 +7,11 @@ This a complete control dashboard for the API game [Space-Traders](https://space
 ## How to run
 
 1. Clone the repo `git clone https://github.com/fschatbot/space-traders.git`
-2. Install dependencies `npm clean-install`
-3. Run the app `npm start`
-4. Visit `http://localhost:3005/`
+2. Install Python Dependencies `pip install requests rich`
+3. Download the System Map `python downloadSystems.py`
+4. Install webpage dependencies `npm clean-install`
+5. Run the app `npm start`
+6. Visit `http://localhost:3005/`
 
 ## Features
 
@@ -21,14 +23,14 @@ This a complete control dashboard for the API game [Space-Traders](https://space
   - [ ] Monitor Progress
   - [ ] Collection of rewards
 - [ ] Ships
-  - [ ] View Details
+  - [x] View Details
   - [ ] View Cargo (Allow for ejection)
   - [ ] Refuel (If Possible)
   - [ ] Location, Destination (setting and viewing), Duration
   - [ ] Mining (If possible)
-  - [ ] Switching ship modes
+  - [x] Switching ship modes
   - [ ] Delivering Cargo for contracts
-  - [ ] Switching between Orbiting and Docking
+  - [x] Switching between Orbiting and Docking
 - [ ] Shipyard
   - [ ] Search for systems
     - [ ] Show system from contracts
@@ -65,9 +67,13 @@ This a complete control dashboard for the API game [Space-Traders](https://space
   - [ ] `No-Token` Error Handling
   - [ ] Rate Limiting (Optional)
   - [ ] Checking if the endpoint can even be execute (highly optional)
+  - [ ] Implement System and Waypoint Verification
+  - [ ] React Hook for the API
 - [ ] Automation
   - [ ] Auto-accepting and fulfilling contracts
   - [ ] Auto-mining till cargo is full or a goal is reached
+  - [ ] Auto-switching between flight mode depending on the distance and fuel
+  - [ ] Auto-refueling if coin consumption is less than 1%.
 - [ ] General
   - [ ] Showcasing Name and Credits in Navbar
   - [ ] Icons for almost everything
