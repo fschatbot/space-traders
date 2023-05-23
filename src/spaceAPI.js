@@ -37,7 +37,7 @@ const ENDPOINTS = {
 		url: "my/ships/:ship/dock",
 	},
 	SWITCH_MODE: {
-		method: "PATCH",
+		type: "PATCH",
 		body: { flightMode: ["CRUISE", "BURN", "DRIFT", "STEALTH"] },
 		url: "my/ships/:ship/nav",
 	},
@@ -186,7 +186,7 @@ function CallEndPoint({ endpoint, token, body, method, params, limit, page, page
 	}
 
 	const payloadBody = {};
-	if (endpoint.body) {
+	if (endpoint.body && endpoint.body instanceof Array) {
 		// Adding the parameters which are required first
 		endpoint.body.forEach((param) => {
 			if (param.includes("?")) {
@@ -202,6 +202,24 @@ function CallEndPoint({ endpoint, token, body, method, params, limit, page, page
 				delete body[param];
 			}
 		});
+	} else if (endpoint.body && typeof endpoint.body === "object") {
+		// Adding the parameters which are required first
+		for (let param in endpoint.body) {
+			if (param.includes("?")) {
+				// Optional parameter
+				param = param.replace("?", "");
+				if (param in body) {
+					if (endpoint.body[param].indexOf(body[param]) < 0) throw new Error(`Invalid param value for ${param}`);
+					payloadBody[param] = body[param];
+					delete body[param];
+				}
+			} else {
+				if (!(param in body)) throw new Error(`Missing payload body parameter: ${param}`);
+				if (endpoint.body[param].indexOf(body[param]) < 0) throw new Error(`Invalid param value for ${param}`);
+				payloadBody[param] = body[param];
+				delete body[param];
+			}
+		}
 	}
 	// Adding the rest of the parameters
 	for (const param in body) {

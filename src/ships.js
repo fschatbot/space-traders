@@ -1,4 +1,4 @@
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useState } from "react";
 import { CallEndPoint, DataProvider, ENDPOINTS } from "./spaceAPI";
 import { BiInfoCircle, BiRocket } from "react-icons/bi";
 import { BsEjectFill } from "react-icons/bs";
@@ -12,7 +12,7 @@ export default function Ships() {
 	useEffect(refresh, []);
 
 	function refresh() {
-		CallEndPoint({ endpoint: ENDPOINTS.AGENT_SHIPS })
+		CallEndPoint({ endpoint: ENDPOINTS.AGENT_SHIPS, remember: 5 * 60 * 1000 })
 			.then((response) => updateStore({ ships: response.data }))
 			.then(() => toast.success("Ships data has been refreshed"));
 	}
@@ -40,7 +40,6 @@ function ShowShip({ data }) {
 			updateStore({ ships: newShipDatas });
 		});
 	}
-	console.log(data);
 	return (
 		<div className="shipContainer">
 			<h1 className="title">
@@ -102,24 +101,54 @@ function ActionButtons({ data, refresh }) {
 		DOCKED: "orbit",
 		IN_ORBIT: "dock",
 	};
+
+	const [dropdownStatus, setDropdownStatus] = useState(false);
+
 	function ToggleOrbit() {
 		const ExpectedStatus = statusActionMap[data.nav.status];
 		CallEndPoint({ endpoint: ExpectedStatus.toUpperCase(), params: { ship: data.symbol } })
 			.then((response) => toast.success(ExpectedStatus === "dock" ? "The ship is now docked." : "The ship is now in orbit."))
 			.then(refresh);
 	}
+
+	const [mouseInside, setMouseInside] = useState(false);
+	// Debouncing effect
+	useEffect(() => {
+		const timeout = setTimeout(() => setDropdownStatus(mouseInside), 300);
+		return () => clearTimeout(timeout);
+	}, [mouseInside]);
+
+	const MODES = ["CRUISE", "BURN", "DRIFT", "STEALTH"];
+	delete MODES[MODES.indexOf(data.nav.flightMode)];
+
 	return (
 		<div className="actionGroup">
 			<button onClick={ToggleOrbit}>{statusActionMap[data.nav.status].title()}</button>
 			<button>Deliver</button>
-			<div className="dropdownGroup">
+			<div
+				className="dropdownGroup"
+				onMouseLeave={() => {
+					setMouseInside(false);
+				}}
+				onMouseEnter={() => {
+					setMouseInside(true);
+					setDropdownStatus(true);
+				}}>
 				<button className="flex items-center">
-					Cruise <HiChevronDown />
+					{data.nav.flightMode.title()} <HiChevronDown />
 				</button>
-				<div className="dropdown hidden">
-					<span>Burn</span>
-					<span>Drift</span>
-					<span>Stealth</span>
+				<div className={"dropdown" + (dropdownStatus ? "" : " closed")}>
+					{MODES.map((mode) => (
+						<span
+							onClick={() => {
+								CallEndPoint({ endpoint: ENDPOINTS.SWITCH_MODE, params: { ship: data.symbol }, body: { flightMode: mode }, debug: true })
+									.then(() => toast.success(`Flight mode swtiched to ${mode.title()}`))
+									.then(refresh);
+							}}
+							key={mode}>
+							{mode.title()}
+						</span>
+					))}
 				</div>
 			</div>
 			<button disabled>Refuel</button>
