@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useReducer, useRef, useState } from "react";
 import { CallEndPoint, DataProvider, ENDPOINTS } from "./spaceAPI";
 import { BiInfoCircle, BiRocket } from "react-icons/bi";
 import { BsEjectFill } from "react-icons/bs";
@@ -31,7 +31,10 @@ export default function Ships() {
 }
 
 function ShowShip({ data }) {
+	console.log(data);
 	const { store, updateStore } = useContext(DataProvider);
+	const NavigationActionRef = useRef();
+	const NavigationRef = useRef();
 
 	function refreshShip() {
 		CallEndPoint({ endpoint: ENDPOINTS.GET_SHIP, params: { ship: data.symbol } }).then((response) => {
@@ -40,6 +43,29 @@ function ShowShip({ data }) {
 			updateStore({ ships: newShipDatas });
 		});
 	}
+
+	function NavigateShip() {
+		NavigationActionRef.current.classList.add("pending");
+		NavigationActionRef.current.classList.remove("error");
+		// Basic verfication for quick response and decreased API call
+		if (NavigationRef.current.value.length !== 14 || /^[A-z0-9]{2}-[A-z0-9]{4}-\d{5}[A-z0-9]$/g.test(NavigationRef.current.value) === false) {
+			NavigationActionRef.current.classList.remove("pending");
+			NavigationActionRef.current.classList.add("error");
+			toast.error("Invalid route format");
+			return;
+		}
+
+		// Navigate the ship to the new route
+		CallEndPoint({ endpoint: ENDPOINTS.NAVIGATE, body: { waypointSymbol: NavigationRef.current.value }, params: { ship: data.symbol } })
+			.then((response) => toast.success("The ship's new destination has been set"))
+			.then(refreshShip)
+			.catch((error) => {
+				toast.error(error.message);
+				console.warn(error);
+			})
+			.finally(() => NavigationActionRef.current.classList.remove("pending"));
+	}
+
 	return (
 		<div className="shipContainer">
 			<h1 className="title">
@@ -74,15 +100,19 @@ function ShowShip({ data }) {
 					{/* TODO: Have a look over here when the ship is travelling or has reached its location */}
 					<span>
 						<BiCurrentLocation />
-						{data.nav.route.departure.symbol} ({data.nav.route.departure.x}, {data.nav.route.departure.y}) [{data.nav.route.departure.type.replaceAll("_", " ").title()}]
+						{data.nav.status !== "IN_TRANSIT"
+							? `${data.nav.route.destination.symbol} (${data.nav.route.destination.x}, ${data.nav.route.destination.y}) [${data.nav.route.destination.type.replaceAll("_", " ").title()}]`
+							: `The ship will arive at a location at ${new Date(data.nav.route.arrival).preset("DD/MM/YYYY HH:mm:ss")}`}
 					</span>
 					<span>
 						<HiOutlineLocationMarker />
-						{data.nav.route.destination.symbol} ({data.nav.route.destination.x}, {data.nav.route.destination.y}) [{data.nav.route.destination.type.replaceAll("_", " ").title()}]
+						{data.nav.status !== "IN_TRANSIT"
+							? `No Current Destination`
+							: `${data.nav.route.destination.symbol} (${data.nav.route.destination.x}, ${data.nav.route.destination.y}) [${data.nav.route.destination.type.replaceAll("_", " ").title()}]`}
 					</span>
-					<div className="navigateAction">
-						<input type="text" placeholder="XX-XXXX-00000X" />
-						<button>
+					<div className="navigateAction" ref={NavigationActionRef}>
+						<input type="text" placeholder="XX-XXXX-00000X" maxLength={14} ref={NavigationRef} onKeyUp={(e) => (e.key === "Enter" ? NavigateShip() : 0)} />
+						<button onClick={NavigateShip}>
 							<BiRocket />
 						</button>
 					</div>
@@ -100,11 +130,13 @@ function ActionButtons({ data, refresh }) {
 	const statusActionMap = {
 		DOCKED: "orbit",
 		IN_ORBIT: "dock",
+		IN_TRANSIT: "In Transit",
 	};
 
 	const [dropdownStatus, setDropdownStatus] = useState(false);
 
 	function ToggleOrbit() {
+		if (data.nav.status === "IN_TRANSIT") return toast.error("The ship can't be docked while in transit.");
 		const ExpectedStatus = statusActionMap[data.nav.status];
 		CallEndPoint({ endpoint: ExpectedStatus.toUpperCase(), params: { ship: data.symbol } })
 			.then((response) => toast.success(ExpectedStatus === "dock" ? "The ship is now docked." : "The ship is now in orbit."))
@@ -123,7 +155,9 @@ function ActionButtons({ data, refresh }) {
 
 	return (
 		<div className="actionGroup">
-			<button onClick={ToggleOrbit}>{statusActionMap[data.nav.status].title()}</button>
+			<button onClick={ToggleOrbit} disabled={data.nav.status === "IN_TRANSIT"}>
+				{statusActionMap[data.nav.status].title()}
+			</button>
 			<button>Deliver</button>
 			<div
 				className="dropdownGroup"
