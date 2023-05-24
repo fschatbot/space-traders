@@ -5,8 +5,13 @@
 	fixed top-0 left-0 z-50;
 }
 
-.navbar .name {
-	@apply px-6 py-2 bg-slate-800 rounded-xl border border-slate-700;
+.navbar .nameContainer {
+	@apply flex flex-row gap-1;
+}
+
+.navbar .nameContainer * {
+	@apply px-6 py-2 bg-slate-800 rounded-3xl border border-slate-700
+	first:rounded-r-md last:rounded-l-md;
 }
 
 .navbar .active {

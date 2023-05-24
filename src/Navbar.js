@@ -6,7 +6,7 @@ import { useContext, useEffect, useState } from "react";
 export default function NavBar() {
 	const { store, updateStore } = useContext(DataProvider);
 	useEffect(() => {
-		if (!store.name) CallEndPoint({ endpoint: ENDPOINTS.AGENT_DATA }).then((response) => updateStore({ name: response.data.symbol }));
+		if (!store.name) CallEndPoint({ endpoint: ENDPOINTS.AGENT_DATA }).then((response) => updateStore({ name: response.data.symbol, credits: response.data.credits }));
 	}, []);
 
 	return (
@@ -26,7 +26,10 @@ export default function NavBar() {
 			<NavLink to="/map" className={({ isActive }) => (isActive ? "active" : "")}>
 				Map
 			</NavLink>
-			<span className="name">{store.name}</span>
+			<span className="nameContainer">
+				<label className="username">{store.name}</label>
+				<label className="credits">${store.credits}</label>
+			</span>
 		</div>
 	);
 }
