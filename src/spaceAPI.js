@@ -86,7 +86,7 @@ const ENDPOINTS = {
 		body: ["shipType", "waypointSymbol"],
 		url: "my/ships",
 	},
-	PURCHASE_CARGO: {
+	BUY: {
 		type: "POST",
 		body: ["symbol", "units"],
 		url: "my/ships/:ship/purchase",
@@ -151,7 +151,7 @@ const errors = [];
 // pageAll: boolean - If the endpoint should be paginated until all items are fetched (pagination)
 // debug: boolean - Log certain data points to the console
 // remember: boolean - If the response should be saved in the indexDB
-function CallEndPoint({ endpoint, token, body, method, params, limit, page, pageAll, remember, debug = false }) {
+function CallEndPoint({ endpoint, token, body = {}, method, params, limit, page, pageAll, remember, debug = false }) {
 	// Building the URL
 	// endpoint: ENDPOINT key string, ENDPOINT URL, ENDPOINT object
 	if (endpoint in ENDPOINTS) endpoint = ENDPOINTS[endpoint];
@@ -257,7 +257,7 @@ function getToken() {
 }
 
 window.exposeRequests = function () {
-	const items = { responses: responses, errors: errors, getToken: getToken, CallEndPoint: CallEndPoint, ENDPOINTS: ENDPOINTS };
+	const items = { responses, errors, getToken, CallEndPoint, ENDPOINTS, getSystems };
 	for (const item in items) {
 		Object.defineProperty(window, item, {
 			get: () => items[item],
@@ -265,8 +265,11 @@ window.exposeRequests = function () {
 		});
 	}
 };
-
 window.exposeRequests();
+
+function getSystems() {
+	return fetch("systems.json").then((response) => response.json());
+}
 
 export const DataProvider = createContext({});
 
