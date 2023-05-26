@@ -2,15 +2,15 @@
 	@apply text-3xl text-white font-bold text-center my-5;
 }
 
-.searchBox {
+.shipYard .searchBox {
 	@apply flex flex-row items-center justify-center;
 }
 
-.searchBox input {
+.shipYard .searchBox input {
 	@apply w-1/2 py-2 px-4 rounded-lg flex-grow rounded-r-none max-w-[25rem] outline-none;
 }
 
-.searchBox button {
+.shipYard .searchBox button {
 	@apply px-4 py-2 rounded-lg rounded-l-none bg-yellow-500;
 }
 
