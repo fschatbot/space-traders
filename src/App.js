@@ -9,6 +9,7 @@ import Contracts from "./contracts";
 import ShipYard from "./shipyard";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import MarketPlace from "./market";
 
 function App() {
 	const [store, setStore] = useState({
@@ -17,6 +18,7 @@ function App() {
 		selectedSystem: "",
 		shipShop: {},
 		ships: [],
+		marketWaypoints: [],
 	});
 	function updateStore(newStore) {
 		setStore((prev) => ({ ...prev, ...newStore }));
@@ -48,6 +50,14 @@ function App() {
 						element={
 							<PageWrapper>
 								<ShipYard />
+							</PageWrapper>
+						}
+					/>
+					<Route
+						path="/market"
+						element={
+							<PageWrapper>
+								<MarketPlace />
 							</PageWrapper>
 						}
 					/>
