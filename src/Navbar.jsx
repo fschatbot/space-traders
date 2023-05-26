@@ -20,7 +20,7 @@ export default function NavBar() {
 			<NavLink to="/shipyard" className={({ isActive }) => (isActive ? "active" : "")}>
 				Shipyard
 			</NavLink>
-			<NavLink to="/market-place" className={({ isActive }) => (isActive ? "active" : "")}>
+			<NavLink to="/market" className={({ isActive }) => (isActive ? "active" : "")}>
 				Market Place
 			</NavLink>
 			<NavLink to="/map" className={({ isActive }) => (isActive ? "active" : "")}>
@@ -28,7 +28,7 @@ export default function NavBar() {
 			</NavLink>
 			<span className="nameContainer">
 				<label className="username">{store.name}</label>
-				<label className="credits">${store.credits}</label>
+				<label className="credits">{store.credits} credits</label>
 			</span>
 		</div>
 	);
