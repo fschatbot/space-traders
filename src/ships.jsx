@@ -1,12 +1,17 @@
-import { useCallback, useContext, useEffect, useReducer, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { CallEndPoint, DataProvider, ENDPOINTS } from "./spaceAPI";
+import { toast } from "react-toastify";
+import { useCountDown } from "./utils";
+import Modal from "react-modal";
+import "./styles/ships.css";
+
+// Icons
 import { BiInfoCircle, BiRocket } from "react-icons/bi";
 import { BsEjectFill } from "react-icons/bs";
 import { BiCurrentLocation } from "react-icons/bi";
 import { HiOutlineLocationMarker, HiChevronDown, HiOutlineRefresh } from "react-icons/hi";
-import "./styles/ships.css";
-import { toast } from "react-toastify";
-import { useCountDown } from "./utils";
+import { CgClose } from "react-icons/cg";
+import { BsShop } from "react-icons/bs";
 
 export default function Ships() {
 	const { store, updateStore } = useContext(DataProvider);
@@ -27,6 +32,8 @@ export default function Ships() {
 			{store.ships.map((shipdata) => (
 				<ShowShip data={shipdata} key={shipdata.symbol} />
 			))}
+
+			<OpenShop />
 		</div>
 	);
 }
@@ -104,6 +111,11 @@ function ShowShip({ data }) {
 						{data.nav.status !== "IN_TRANSIT"
 							? `${data.nav.route.destination.symbol} (${data.nav.route.destination.x}, ${data.nav.route.destination.y}) [${data.nav.route.destination.type.replaceAll("_", " ").title()}]`
 							: `The ship will arive at a location at ${new Date(data.nav.route.arrival).preset("DD/MM/YYYY hh:mm:ss")}`}
+						{data.nav.status === "DOCKED" && (
+							<button className="containerButton" onClick={() => updateStore({ marketModal: data.symbol })}>
+								<BsShop />
+							</button>
+						)}
 					</span>
 					<span>
 						<HiOutlineLocationMarker />
@@ -242,5 +254,25 @@ function ActionButtons({ data, refresh }) {
 			)}
 			{timeLeft.total_seconds > 0 && <span>Cooldown: {timeLeft.total_seconds}s</span>}
 		</div>
+	);
+}
+
+function OpenShop() {
+	const { store, updateStore } = useContext(DataProvider);
+	const [isOpen, setIsOpen] = useState(store.marketModal);
+
+	useEffect(() => {
+		setIsOpen(store.marketModal);
+	}, [store.marketModal]);
+	const closeModal = () => updateStore({ marketModal: undefined });
+
+	return (
+		<Modal isOpen={isOpen} overlayClassName="ModalOverlay" className="Modal" onRequestClose={closeModal} ariaHideApp={false}>
+			<h1 className="title">Markert</h1>
+			<button onClick={closeModal} className="close">
+				<CgClose />
+			</button>
+			<div className="content">Hello sexy!</div>
+		</Modal>
 	);
 }
