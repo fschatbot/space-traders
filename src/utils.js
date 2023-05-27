@@ -7,8 +7,9 @@ function useCountDown(time, callback) {
 	const [data, setData] = useState({
 		chaseTime: new Date(time || 0),
 		onEnd: callback || (() => 0),
+		triggered: !callback, // if callback is not provided, it will be considered as triggered
 	});
-	const onTimerEnd = (callback) => setData((prevData) => ({ ...prevData, onEnd: callback }));
+	const onTimerEnd = (callback) => setData((prevData) => ({ ...prevData, onEnd: callback, triggered: false }));
 	const setChaseTime = (time) => setData((prevData) => ({ ...prevData, chaseTime: time }));
 
 	const [timeLeft, setTimeLeft] = useState(getLeftTime());
@@ -35,7 +36,10 @@ function useCountDown(time, callback) {
 	useEffect(() => {
 		let interval = setInterval(() => {
 			const newTime = getLeftTime();
-			if (newTime.total_seconds === 0 && timeLeft.total_seconds !== 0) data.onEnd();
+			if (newTime.total_seconds === 0 && !data.triggered) {
+				data.onEnd();
+				setData((prevData) => ({ ...prevData, triggered: true }));
+			}
 			setTimeLeft(newTime);
 		}, updateInterval);
 		return () => clearInterval(interval);
