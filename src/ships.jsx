@@ -10,8 +10,9 @@ import { BiInfoCircle, BiRocket } from "react-icons/bi";
 import { BsEjectFill } from "react-icons/bs";
 import { BiCurrentLocation } from "react-icons/bi";
 import { HiOutlineLocationMarker, HiChevronDown, HiOutlineRefresh } from "react-icons/hi";
-import { CgClose } from "react-icons/cg";
+import { CgClose, CgScrollV } from "react-icons/cg";
 import { BsShop } from "react-icons/bs";
+import { TbCoins } from "react-icons/tb";
 
 export default function Ships() {
 	const { store, updateStore } = useContext(DataProvider);
@@ -39,7 +40,6 @@ export default function Ships() {
 }
 
 function ShowShip({ data }) {
-	console.log(data);
 	const { store, updateStore } = useContext(DataProvider);
 	const NavigationActionRef = useRef();
 	const NavigationRef = useRef();
@@ -67,10 +67,7 @@ function ShowShip({ data }) {
 		CallEndPoint({ endpoint: ENDPOINTS.NAVIGATE, body: { waypointSymbol: NavigationRef.current.value }, params: { ship: data.symbol } })
 			.then((response) => toast.success("The ship's new destination has been set"))
 			.then(refreshShip)
-			.catch((error) => {
-				toast.error(error.message);
-				console.warn(error);
-			})
+			.catch((error) => toast.error(error.message))
 			.finally(() => NavigationActionRef.current.classList.remove("pending"));
 	}
 
@@ -112,7 +109,7 @@ function ShowShip({ data }) {
 							? `${data.nav.route.destination.symbol} (${data.nav.route.destination.x}, ${data.nav.route.destination.y}) [${data.nav.route.destination.type.replaceAll("_", " ").title()}]`
 							: `The ship will arive at a location at ${new Date(data.nav.route.arrival).preset("DD/MM/YYYY hh:mm:ss")}`}
 						{data.nav.status === "DOCKED" && (
-							<button className="containerButton" onClick={() => updateStore({ marketModal: data.symbol })}>
+							<button className="containerButton" onClick={() => updateStore({ marketShip: data.symbol })}>
 								<BsShop />
 							</button>
 						)}
@@ -258,21 +255,166 @@ function ActionButtons({ data, refresh }) {
 }
 
 function OpenShop() {
+	// Getting simple data from the store
 	const { store, updateStore } = useContext(DataProvider);
-	const [isOpen, setIsOpen] = useState(store.marketModal);
+	const ship = store.ships.find((ship) => ship.symbol === store.marketShip); // Current selected ship
 
+	// Getting the market data
+	const [isOpen, setIsOpen] = useState(store.marketShip);
+	const [market, setMarket] = useState(undefined);
 	useEffect(() => {
-		setIsOpen(store.marketModal);
-	}, [store.marketModal]);
-	const closeModal = () => updateStore({ marketModal: undefined });
+		setIsOpen(store.marketShip);
+		if (store.marketShip) {
+			// A ship was found
+			CallEndPoint({
+				endpoint: ENDPOINTS.MARKET,
+				params: {
+					system: ship.nav.systemSymbol,
+					waypoint: ship.nav.waypointSymbol,
+				},
+			})
+				.then((res) => setMarket(res.data))
+				.catch((err) => toast.error(err.error.message));
+		}
+	}, [store.marketShip]);
+
+	const closeModal = () => {
+		setSelectedItem({});
+		updateStore({ marketShip: undefined });
+	};
+
+	const [mode, setMode] = useState("SELL");
+	const [selectedItem, setSelectedItem] = useState({});
+	const [amount, setAmount] = useState(0);
+
+	if (!store.marketShip || !market) return null;
+
+	// List of items can be sold
+	const Sellables = ship.cargo.inventory
+		.filter((item) => market.tradeGoods.find((good) => good.symbol === item.symbol) !== undefined)
+		.map((item) => ({ ...item, ...market.tradeGoods.find((good) => good.symbol === item.symbol) }));
 
 	return (
-		<Modal isOpen={isOpen} overlayClassName="ModalOverlay" className="Modal" onRequestClose={closeModal} ariaHideApp={false}>
+		<Modal isOpen={!!isOpen} overlayClassName="ModalOverlay" className="Modal MarketModal" onRequestClose={closeModal} ariaHideApp={false}>
 			<h1 className="title">Markert</h1>
 			<button onClick={closeModal} className="close">
 				<CgClose />
 			</button>
-			<div className="content">Hello sexy!</div>
+			{store.marketShip ? (
+				<div className="content">
+					<div className="modes">
+						<button className={mode === "BUY" ? "active" : undefined} onClick={() => setMode("BUY")}>
+							Buy Mode
+						</button>
+						<button className={mode === "SELL" ? "active" : undefined} onClick={() => setMode("SELL")}>
+							Sell Mode
+						</button>
+					</div>
+
+					{mode === "SELL" && Sellables.length > 0 && (
+						<>
+							<div className="sellContainer">
+								<DropDown items={Sellables} update={setSelectedItem} choice={selectedItem} />
+								<NumberSelector min={1} max={selectedItem.units} update={setAmount} />
+							</div>
+							<button
+								onClick={() => {
+									CallEndPoint({ endpoint: ENDPOINTS.SELL, params: { ship: ship.symbol }, body: { symbol: selectedItem.symbol, units: amount } })
+										.then((res) => {
+											toast.success(`Sold ${amount} ${selectedItem.name} for ${selectedItem.sellPrice * amount} credit(s)`);
+											const newShipData = store.ships.map((ship) => (ship.symbol === store.marketShip ? { ...ship, cargo: res.data.cargo } : ship));
+											updateStore({ ships: newShipData, credits: res.data.agent.credits });
+										})
+										.catch((err) => toast.error(err.error.message));
+								}}>
+								Sell for {selectedItem.sellPrice * amount} credit(s) <TbCoins />
+							</button>
+						</>
+					)}
+					{mode === "SELL" && Sellables.length === 0 && <div>No Sellable Items</div>}
+					{mode === "BUY" && ship.cargo.units < ship.cargo.capacity && `Buy Container`}
+					{mode === "BUY" && ship.cargo.units >= ship.cargo.capacity && <div>You don't have enough space in your ship!</div>}
+				</div>
+			) : (
+				`No Peeping...`
+			)}
 		</Modal>
+	);
+}
+
+function DropDown({ items, update, choice }) {
+	const [dropdownStatus, setDropdownStatus] = useState(false);
+	useEffect(() => {
+		if (!choice.symbol) update(items[0]);
+	}, [items]);
+
+	return (
+		<div className="dropdownGroup">
+			<button onClick={() => setDropdownStatus(!dropdownStatus)}>
+				<span className="selected">
+					<span className="name">{choice.name}</span> <span className="price">&#8212; {choice.sellPrice} credit(s)</span>
+				</span>
+				<CgScrollV className="icon" />
+			</button>
+			<div className={"dropdown" + (dropdownStatus ? "" : " closed")}>
+				{items.map((item) => (
+					<span
+						onClick={() => {
+							update(item);
+							setDropdownStatus(false);
+						}}
+						key={item.symbol}>
+						<span className="name">{item.name}</span> <span className="price">&#8212; {item.sellPrice} credit(s)</span>
+					</span>
+				))}
+			</div>
+		</div>
+	);
+}
+
+function NumberSelector({ min, max, update }) {
+	const valueRef = useRef();
+
+	const getVal = () => valueRef.current.value;
+	const updateValue = () => update(Number(getVal()));
+	function reduce() {
+		validate();
+		if (Number(getVal()) > min) valueRef.current.value = Number(getVal()) - 1;
+		updateValue();
+	}
+	function increase() {
+		validate();
+		if (Number(getVal()) < max) valueRef.current.value = Number(getVal()) + 1;
+		updateValue();
+	}
+	function validate() {
+		// Ensure that the value is valid
+		let val = Number(valueRef.current.value.replace(/[^0-9]/g, "") || min); // Remove all non numeric characters
+		if (val < min) val = min;
+		if (val > max) val = max;
+		valueRef.current.value = val;
+	}
+
+	useEffect(() => {
+		validate();
+		updateValue();
+	}, [min, max]);
+
+	return (
+		<div className="numberSelector">
+			<button onClick={reduce}>-</button>
+			<input
+				type="input"
+				max={max}
+				min={min}
+				defaultValue={min}
+				ref={valueRef}
+				onChange={() => {
+					validate();
+					updateValue();
+				}}
+			/>
+			<button onClick={increase}>+</button>
+		</div>
 	);
 }

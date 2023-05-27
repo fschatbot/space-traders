@@ -27,7 +27,7 @@ export default function NavBar() {
 				Map
 			</NavLink>
 			<span className="nameContainer">
-				<label className="username">{store.name}</label>
+				<label className="username">{store.name ?? "<name>"}</label>
 				<label className="credits">{store.credits} credits</label>
 			</span>
 		</div>

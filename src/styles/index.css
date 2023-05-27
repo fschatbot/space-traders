@@ -13,7 +13,8 @@ button.containerButton {
 
 .ModalOverlay .Modal {
 	@apply bg-slate-600 border border-slate-500 fixed outline-none
-	inset-56 rounded-lg p-4 text-white/90;
+	inset-56 rounded-lg p-4 text-white/90
+	flex flex-col;
 }
 
 .ModalOverlay .Modal .close {
