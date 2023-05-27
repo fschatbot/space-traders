@@ -35,6 +35,7 @@ export default function Ships() {
 			))}
 
 			<OpenShop />
+			<Eject />
 		</div>
 	);
 }
@@ -97,7 +98,7 @@ function ShowShip({ data }) {
 						))}
 						{data.cargo.inventory.length === 0 && <li className="empty">Empty</li>}
 					</ul>
-					<button className="eject">
+					<button className="eject" onClick={() => updateStore({ ejectShip: data.symbol })}>
 						<BsEjectFill /> Eject
 					</button>
 				</div>
@@ -251,6 +252,53 @@ function ActionButtons({ data, refresh }) {
 			)}
 			{timeLeft.total_seconds > 0 && <span>Cooldown: {timeLeft.total_seconds}s</span>}
 		</div>
+	);
+}
+
+function Eject() {
+	// Getting simple data from the store
+	const { store, updateStore } = useContext(DataProvider);
+	const ship = store.ships.find((ship) => ship.symbol === store.ejectShip); // Current selected ship
+	const [isOpen, setIsOpen] = useState(store.ejectShip);
+
+	useEffect(() => setIsOpen(store.ejectShip), [store.ejectShip]);
+	const closeModal = () => {
+		setSelectedItem({});
+		setAmount(0);
+		updateStore({ ejectShip: null });
+	};
+
+	const [selectedItem, setSelectedItem] = useState({});
+	const [amount, setAmount] = useState(0);
+
+	if (!store.ejectShip) return null;
+
+	return (
+		<Modal isOpen={!!isOpen} overlayClassName="ModalOverlay" className="Modal MarketModal" onRequestClose={closeModal} ariaHideApp={false}>
+			<h1 className="title">Eject Resources</h1>
+			<button onClick={closeModal} className="close">
+				<CgClose />
+			</button>
+			<div className="content">
+				<div className="sellContainer">
+					<DropDown items={ship.cargo.inventory} update={setSelectedItem} choice={selectedItem} format={(item) => item.symbol} />
+					<NumberSelector min={1} max={selectedItem.units} update={setAmount} />
+				</div>
+				<button
+					onClick={() => {
+						CallEndPoint({ endpoint: ENDPOINTS.EJECT_CARGO, params: { ship: ship.symbol }, body: { symbol: selectedItem.symbol, units: amount } })
+							.then((res) => {
+								toast.success(`Ejected ${amount} ${selectedItem.name} into space!`, { icon: "👋" });
+								const newShipData = store.ships.map((ship) => (ship.symbol === store.ejectShip ? { ...ship, cargo: res.data.cargo } : ship));
+								console.log(newShipData, res.data)
+								updateStore({ ships: newShipData });
+							})
+							.catch((err) => toast.error(err.error.message));
+					}}>
+					Eject {amount} &times; {selectedItem.name} into space!
+				</button>
+			</div>
+		</Modal>
 	);
 }
 
