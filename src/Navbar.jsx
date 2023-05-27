@@ -2,6 +2,7 @@ import { ENDPOINTS, CallEndPoint, DataProvider } from "./spaceAPI";
 import { NavLink } from "react-router-dom";
 import "./styles/navbar.css";
 import { useContext, useEffect } from "react";
+import { TbCoins } from "react-icons/tb";
 
 export default function NavBar() {
 	const { store, updateStore } = useContext(DataProvider);
@@ -27,8 +28,10 @@ export default function NavBar() {
 				Map
 			</NavLink>
 			<span className="nameContainer">
-				<label className="username">{store.name ?? "<name>"}</label>
-				<label className="credits">{store.credits} credits</label>
+				<label className="username">{store.name || "<name>"}</label>
+				<label className="credits">
+					<TbCoins /> {store.credits || 0}
+				</label>
 			</span>
 		</div>
 	);

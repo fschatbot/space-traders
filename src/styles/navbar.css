@@ -9,9 +9,10 @@
 	@apply flex flex-row gap-1;
 }
 
-.navbar .nameContainer * {
+.navbar .nameContainer > * {
 	@apply px-6 py-2 bg-slate-800 rounded-3xl border border-slate-700
-	first:rounded-r-md last:rounded-l-md;
+	first:rounded-r-md last:rounded-l-md
+	flex flex-row gap-2 items-center justify-center;
 }
 
 .navbar .active {
