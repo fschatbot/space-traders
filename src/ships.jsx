@@ -170,7 +170,7 @@ function ActionButtons({ data, refresh }) {
 		CallEndPoint({ endpoint: ENDPOINTS.EXTRACT, params: { ship: data.symbol }, body: survey ? { survey } : {} })
 			.then((res) => {
 				toast.success(`Mined ${res.data.extraction.yield.units} ${res.data.extraction.yield.symbol.replace("_", " ").title()}`);
-				setChaseTime(Date.now() + res.data.cooldown.totalSeconds * 1000 + 1000); // 1 extra second just to be sure
+				setChaseTime(Date.now() + res.data.cooldown.remainingSeconds * 1000 + 1000); // 1 extra second just to be sure
 			})
 			.then(refresh)
 			.catch(MineErr);
@@ -180,7 +180,7 @@ function ActionButtons({ data, refresh }) {
 			// .then((response) => response.data.surveys[0].signature)
 			.then((response) => {
 				let survey = response.data.surveys[0]; // Getting the signature of the survey (TODO: Check out which survey to choose)
-				setChaseTime(Date.now() + response.data.cooldown.totalSeconds * 1000 + 1000); // 1 extra second just to be sure
+				setChaseTime(Date.now() + response.data.cooldown.remainingSeconds * 1000 + 1000); // 1 extra second just to be sure
 				onTimerEnd(() => Mine(survey));
 			})
 			.then(() => toast.success("Survey Complete"))
@@ -191,7 +191,7 @@ function ActionButtons({ data, refresh }) {
 		if (err.error) {
 			if (err.error.code === 4000) {
 				toast.error("The ship was on cooldown");
-				setChaseTime(Date.now() + err.error.data.cooldown.totalSeconds * 1000 + 1000);
+				setChaseTime(Date.now() + err.error.data.cooldown.remainingSeconds * 1000 + 1000);
 			} else {
 				toast.error(err.error.message);
 			}
