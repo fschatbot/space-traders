@@ -98,9 +98,11 @@ function ShowShip({ data }) {
 						))}
 						{data.cargo.inventory.length === 0 && <li className="empty">Empty</li>}
 					</ul>
-					<button className="eject" onClick={() => updateStore({ ejectShip: data.symbol })}>
-						<BsEjectFill /> Eject
-					</button>
+					{data.cargo.inventory.length !== 0 && (
+						<button className="eject" onClick={() => updateStore({ ejectShip: data.symbol })}>
+							<BsEjectFill /> Eject
+						</button>
+					)}
 				</div>
 				<div className="navigation">
 					{/* TODO: Have a look over here when the ship is travelling or has reached its location */}
@@ -290,7 +292,7 @@ function Eject() {
 							.then((res) => {
 								toast.success(`Ejected ${amount} ${selectedItem.name} into space!`, { icon: "👋" });
 								const newShipData = store.ships.map((ship) => (ship.symbol === store.ejectShip ? { ...ship, cargo: res.data.cargo } : ship));
-								console.log(newShipData, res.data)
+								console.log(newShipData, res.data);
 								updateStore({ ships: newShipData });
 							})
 							.catch((err) => toast.error(err.error.message));
