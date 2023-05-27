@@ -1,13 +1,13 @@
 import { ENDPOINTS, CallEndPoint, DataProvider } from "./spaceAPI";
 import { NavLink } from "react-router-dom";
 import "./styles/navbar.css";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect } from "react";
 
 export default function NavBar() {
 	const { store, updateStore } = useContext(DataProvider);
 	useEffect(() => {
 		if (!store.name) CallEndPoint({ endpoint: ENDPOINTS.AGENT_DATA }).then((response) => updateStore({ name: response.data.symbol, credits: response.data.credits }));
-	}, []);
+	}, [store.name, updateStore]);
 
 	return (
 		<div className="navbar">
