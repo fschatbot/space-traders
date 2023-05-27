@@ -411,6 +411,18 @@ function OpenShop() {
 						</>
 					)}
 					{mode === "BUY" && ship.cargo.units >= ship.cargo.capacity && <div className="MarketWarning">You don't have enough space in your ship!</div>}
+					{mode === "BUY" && Buyables.find((good) => good.symbol === "FUEL") !== undefined && ship.fuel.current < ship.fuel.capacity && (
+						<button
+							onClick={() => {
+								CallEndPoint({ endpoint: ENDPOINTS.REFUEL, params: { ship: ship.symbol } }).then((res) => {
+									toast.success(`Refueled for ${res.data.transaction.totalPrice} credit(s)`);
+									const newShipData = store.ships.map((ship) => (ship.symbol === store.marketShip ? { ...ship, fuel: res.data.fuel } : ship));
+									updateStore({ ships: newShipData, credits: res.data.agent.credits });
+								});
+							}}>
+							Refuel
+						</button>
+					)}
 				</div>
 			) : (
 				`No Peeping...`
