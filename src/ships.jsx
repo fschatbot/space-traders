@@ -167,7 +167,7 @@ function ActionButtons({ data, refresh }) {
 		CallEndPoint({ endpoint: ENDPOINTS.EXTRACT, params: { ship: data.symbol }, body: survey ? { survey } : {} })
 			.then((res) => {
 				toast.success(`Mined ${res.data.extraction.yield.units} ${res.data.extraction.yield.symbol.replace("_", " ").title()}`);
-				setChaseTime(new Date(res.data.cooldown.expiration).getTime() + 1000);
+				setChaseTime(Date.now() + res.data.cooldown.totalSeconds * 1000 + 1000); // 1 extra second just to be sure
 			})
 			.then(refresh)
 			.catch(MineErr);
@@ -177,7 +177,7 @@ function ActionButtons({ data, refresh }) {
 			// .then((response) => response.data.surveys[0].signature)
 			.then((response) => {
 				let survey = response.data.surveys[0]; // Getting the signature of the survey (TODO: Check out which survey to choose)
-				setChaseTime(new Date(response.data.cooldown.expiration).getTime() + 1000); // Adding 1 second to the cooldown for safe keeping
+				setChaseTime(Date.now() + response.data.cooldown.totalSeconds * 1000 + 1000); // 1 extra second just to be sure
 				onTimerEnd(() => Mine(survey));
 			})
 			.then(() => toast.success("Survey Complete"))
@@ -188,7 +188,7 @@ function ActionButtons({ data, refresh }) {
 		if (err.error) {
 			if (err.error.code === 4000) {
 				toast.error("The ship was on cooldown");
-				setChaseTime(err.error.data.cooldown.expiration);
+				setChaseTime(Date.now() + err.error.data.cooldown.totalSeconds * 1000 + 1000);
 			} else {
 				toast.error(err.error.message);
 			}
@@ -204,7 +204,7 @@ function ActionButtons({ data, refresh }) {
 	const CanSurvery = data.mounts.find((mount) => mount.symbol.includes("MOUNT_SURVEYOR")) !== undefined;
 	const CanRefine = data.modules.find((mount) => mount.symbol.includes("MODULE_MINERAL_PROCESSOR")) !== undefined; // Doubtful
 	const FullCargo = data.cargo.units === data.cargo.capacity;
-	const isInMineState = data.nav.status !== "IN_ORBIT" || FullCargo || timeLeft.total_seconds > 0;
+	const isNotInMineState = data.nav.status !== "IN_ORBIT" || FullCargo || timeLeft.total_seconds > 0;
 
 	return (
 		<div className="actionGroup">
@@ -240,12 +240,12 @@ function ActionButtons({ data, refresh }) {
 			</div>
 			{CanRefine && <button>Refine</button>}
 			{MineableLocation && CanMine && (
-				<button onClick={() => Mine()} disabled={isInMineState}>
+				<button onClick={() => Mine()} disabled={isNotInMineState}>
 					Mine
 				</button>
 			)}
 			{MineableLocation && CanMine && CanSurvery && (
-				<button onClick={SurveyMine} disabled={isInMineState}>
+				<button onClick={SurveyMine} disabled={isNotInMineState}>
 					Survey & Mine
 				</button>
 			)}
