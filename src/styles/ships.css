@@ -184,3 +184,9 @@
 .MarketModal .dropdownGroup .dropdown > span {
 	@apply hover:bg-slate-600/80 rounded-[4px] cursor-pointer px-2 py-1;
 }
+
+.MarketModal .MarketWarning {
+	@apply bg-slate-500/20 border border-slate-400/20 rounded-md
+	w-full flex-grow flex justify-center items-center
+	text-3xl font-bold;
+}

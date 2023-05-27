@@ -167,7 +167,7 @@ function ActionButtons({ data, refresh }) {
 		CallEndPoint({ endpoint: ENDPOINTS.EXTRACT, params: { ship: data.symbol }, body: survey ? { survey } : {} })
 			.then((res) => {
 				toast.success(`Mined ${res.data.extraction.yield.units} ${res.data.extraction.yield.symbol.replace("_", " ").title()}`);
-				setChaseTime(res.data.cooldown.expiration);
+				setChaseTime(new Date(res.data.cooldown.expiration).getTime() + 1000);
 			})
 			.then(refresh)
 			.catch(MineErr);
@@ -177,7 +177,7 @@ function ActionButtons({ data, refresh }) {
 			// .then((response) => response.data.surveys[0].signature)
 			.then((response) => {
 				let survey = response.data.surveys[0]; // Getting the signature of the survey (TODO: Check out which survey to choose)
-				setChaseTime(response.data.cooldown.expiration);
+				setChaseTime(new Date(response.data.cooldown.expiration).getTime() + 1000); // Adding 1 second to the cooldown for safe keeping
 				onTimerEnd(() => Mine(survey));
 			})
 			.then(() => toast.success("Survey Complete"))
@@ -283,16 +283,24 @@ function OpenShop() {
 		updateStore({ marketShip: undefined });
 	};
 
-	const [mode, setMode] = useState("SELL");
+	const [mode, updateMode] = useState("SELL");
 	const [selectedItem, setSelectedItem] = useState({});
 	const [amount, setAmount] = useState(0);
+
+	const setMode = (mode) => {
+		updateMode(mode);
+		setSelectedItem({});
+		setAmount(0);
+	};
 
 	if (!store.marketShip || !market) return null;
 
 	// List of items can be sold
 	const Sellables = ship.cargo.inventory
 		.filter((item) => market.tradeGoods.find((good) => good.symbol === item.symbol) !== undefined)
-		.map((item) => ({ ...item, ...market.tradeGoods.find((good) => good.symbol === item.symbol) }));
+		.map((item) => ({ ...item, ...market.tradeGoods.find((good) => good.symbol === item.symbol) }))
+		.map((good) => ({ ...good, price: good.sellPrice }));
+	const Buyables = market.tradeGoods.map((good) => ({ ...good, price: good.purchasePrice, name: good.symbol.replaceAll("_", " ").title() })).filter((good) => good.price < store.credits);
 
 	return (
 		<Modal isOpen={!!isOpen} overlayClassName="ModalOverlay" className="Modal MarketModal" onRequestClose={closeModal} ariaHideApp={false}>
@@ -331,9 +339,28 @@ function OpenShop() {
 							</button>
 						</>
 					)}
-					{mode === "SELL" && Sellables.length === 0 && <div>No Sellable Items</div>}
-					{mode === "BUY" && ship.cargo.units < ship.cargo.capacity && `Buy Container`}
-					{mode === "BUY" && ship.cargo.units >= ship.cargo.capacity && <div>You don't have enough space in your ship!</div>}
+					{mode === "SELL" && Sellables.length === 0 && <div className="MarketWarning">No Sellable Items</div>}
+					{mode === "BUY" && ship.cargo.units < ship.cargo.capacity && (
+						<>
+							<div className="sellContainer">
+								<DropDown items={Buyables} update={setSelectedItem} choice={selectedItem} />
+								<NumberSelector min={1} max={Math.min(ship.cargo.capacity - ship.cargo.units, Math.floor(store.credits / (selectedItem.price ?? 1)))} update={setAmount} />
+							</div>
+							<button
+								onClick={() => {
+									CallEndPoint({ endpoint: ENDPOINTS.BUY, params: { ship: ship.symbol }, body: { symbol: selectedItem.symbol, units: amount } })
+										.then((res) => {
+											toast.success(`Purchased ${amount} ${selectedItem.name} for ${selectedItem.sellPrice * amount} credit(s)`);
+											const newShipData = store.ships.map((ship) => (ship.symbol === store.marketShip ? { ...ship, cargo: res.data.cargo } : ship));
+											updateStore({ ships: newShipData, credits: res.data.agent.credits });
+										})
+										.catch((err) => toast.error(err.error.message));
+								}}>
+								Buy for {selectedItem.sellPrice * amount} credit(s) <TbCoins />
+							</button>
+						</>
+					)}
+					{mode === "BUY" && ship.cargo.units >= ship.cargo.capacity && <div className="MarketWarning">You don't have enough space in your ship!</div>}
 				</div>
 			) : (
 				`No Peeping...`
@@ -352,7 +379,7 @@ function DropDown({ items, update, choice }) {
 		<div className="dropdownGroup">
 			<button onClick={() => setDropdownStatus(!dropdownStatus)}>
 				<span className="selected">
-					<span className="name">{choice.name}</span> <span className="price">&#8212; {choice.sellPrice} credit(s)</span>
+					<span className="name">{choice.name}</span> <span className="price">&#8212; {choice.price} credit(s)</span>
 				</span>
 				<CgScrollV className="icon" />
 			</button>
@@ -364,7 +391,7 @@ function DropDown({ items, update, choice }) {
 							setDropdownStatus(false);
 						}}
 						key={item.symbol}>
-						<span className="name">{item.name}</span> <span className="price">&#8212; {item.sellPrice} credit(s)</span>
+						<span className="name">{item.name}</span> <span className="price">&#8212; {item.price} credit(s)</span>
 					</span>
 				))}
 			</div>
