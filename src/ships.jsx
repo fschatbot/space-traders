@@ -11,7 +11,7 @@ import { BsEjectFill } from "react-icons/bs";
 import { BiCurrentLocation } from "react-icons/bi";
 import { HiOutlineLocationMarker, HiChevronDown, HiOutlineRefresh } from "react-icons/hi";
 import { CgClose, CgScrollV } from "react-icons/cg";
-import { BsShop } from "react-icons/bs";
+import { BsShop, BsFillFuelPumpFill } from "react-icons/bs";
 import { TbCoins } from "react-icons/tb";
 
 export default function Ships() {
@@ -443,7 +443,7 @@ function OpenShop() {
 									updateStore({ ships: newShipData, credits: res.data.agent.credits });
 								});
 							}}>
-							Refuel
+							Refuel <BsFillFuelPumpFill />
 						</button>
 					)}
 				</div>
