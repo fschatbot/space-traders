@@ -34,6 +34,7 @@ export default function Ships() {
 				<ShowShip data={shipdata} key={shipdata.symbol} />
 			))}
 
+			<ShipInfo />
 			<OpenShop />
 			<Eject />
 		</div>
@@ -75,7 +76,7 @@ function ShowShip({ data }) {
 	return (
 		<div className="shipContainer">
 			<h1 className="title">
-				<BiInfoCircle className="cursor-pointer" /> {data.symbol}
+				<BiInfoCircle className="cursor-pointer" onClick={() => updateStore({ shipInfo: data.symbol })} /> {data.symbol}
 			</h1>
 			<div className="shipInfo">
 				<div className="fuelContainer">
@@ -254,6 +255,28 @@ function ActionButtons({ data, refresh }) {
 			)}
 			{timeLeft.total_seconds > 0 && <span>Cooldown: {timeLeft.total_seconds}s</span>}
 		</div>
+	);
+}
+
+function ShipInfo() {
+	const { store, updateStore } = useContext(DataProvider);
+	const ship = store.ships.find((ship) => ship.symbol === store.shipInfo); // Current selected ship
+	console.log(ship);
+
+	// Opening and closing mechanism
+	const [isOpen, setIsOpen] = useState(store.shipInfo);
+	useEffect(() => setIsOpen(store.shipInfo), [store.shipInfo]);
+	const closeModal = () => updateStore({ shipInfo: null });
+	if (!store.shipInfo) return null;
+
+	return (
+		<Modal isOpen={!!isOpen} overlayClassName="ModalOverlay" className="Modal MarketModal" onRequestClose={closeModal} ariaHideApp={false}>
+			<h1 className="title">Ship Information</h1>
+			<button onClick={closeModal} className="close">
+				<CgClose />
+			</button>
+			<div className="content">Currently Under Construction. Please check back later!</div>
+		</Modal>
 	);
 }
 
