@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { CallEndPoint, DataProvider, ENDPOINTS } from "./spaceAPI";
 import { toast } from "react-toastify";
 import { useCountDown } from "./utils";
@@ -73,6 +73,8 @@ function ShowShip({ data }) {
 			.finally(() => NavigationActionRef.current.classList.remove("pending"));
 	}
 
+	const refreshShipCallBack = useCallback(refreshShip, []);
+
 	return (
 		<div className="shipContainer">
 			<h1 className="title">
@@ -132,7 +134,7 @@ function ShowShip({ data }) {
 					</div>
 				</div>
 			</div>
-			<ActionButtons data={data} refresh={refreshShip} />
+			<ActionButtons data={data} refresh={refreshShipCallBack} />
 			<button className="refresh" title="refresh data" onClick={refreshShip}>
 				<HiOutlineRefresh />
 			</button>
@@ -141,6 +143,7 @@ function ShowShip({ data }) {
 }
 
 function ActionButtons({ data, refresh }) {
+	const { store, updateStore } = useContext(DataProvider);
 	const statusActionMap = {
 		DOCKED: "orbit",
 		IN_ORBIT: "dock",
@@ -168,12 +171,14 @@ function ActionButtons({ data, refresh }) {
 	delete MODES[MODES.indexOf(data.nav.flightMode)];
 
 	function Mine(survey) {
-		CallEndPoint({ endpoint: ENDPOINTS.EXTRACT, params: { ship: data.symbol }, body: survey ? { survey } : {} })
+		return CallEndPoint({ endpoint: ENDPOINTS.EXTRACT, params: { ship: data.symbol }, body: survey ? { survey } : {} })
 			.then((res) => {
 				toast.success(`Mined ${res.data.extraction.yield.units} ${res.data.extraction.yield.symbol.replace("_", " ").title()}`);
-				setChaseTime(Date.now() + res.data.cooldown.remainingSeconds * 1000 + 1000); // 1 extra second just to be sure
+				setChaseTime(Date.now() + res.data.cooldown.remainingSeconds * 1e3 + 1000); // 1 extra second just to be sure
+				// Updating the cargo
+				const newShipData = store.ships.map((ship) => (ship.symbol === data.symbol ? { ...ship, cargo: res.data.cargo } : ship));
+				updateStore({ ships: newShipData });
 			})
-			.then(refresh)
 			.catch(MineErr);
 	}
 	function SurveyMine() {
@@ -209,6 +214,23 @@ function ActionButtons({ data, refresh }) {
 	const CanRefine = data.modules.find((mount) => mount.symbol.includes("MODULE_MINERAL_PROCESSOR")) !== undefined; // Doubtful
 	const FullCargo = data.cargo.units === data.cargo.capacity;
 	const isNotInMineState = data.nav.status !== "IN_ORBIT" || FullCargo || timeLeft.total_seconds > 0;
+
+	// Auto-Mining
+	const [autoMine, setAutoMine] = useState(false);
+	useEffect(() => {
+		if (data.cargo.units < data.cargo.capacity && autoMine && timeLeft.total_seconds === 0 && data.nav.status === "IN_ORBIT") {
+			Mine();
+		}
+	}, [autoMine, timeLeft.total_seconds, data.nav.status]);
+
+	// JS for the deliver button
+	const contracts = store.contracts.filter(
+		(contract) =>
+			contract.accepted &&
+			!contract.fullfilled &&
+			contract.terms.deliver.find((deliver) => deliver.destinationSymbol === data.nav.waypointSymbol && deliver.unitsFulFilled < deliver.unitsRequired) !== undefined
+	);
+	// console.log(contracts);
 
 	return (
 		<div className="actionGroup">
@@ -253,6 +275,7 @@ function ActionButtons({ data, refresh }) {
 					Survey & Mine
 				</button>
 			)}
+			{MineableLocation && CanMine && <button onClick={() => setAutoMine(!autoMine)}>{!autoMine ? "Enable" : "Disable"} AutoMine</button>}
 			{timeLeft.total_seconds > 0 && <span>Cooldown: {timeLeft.total_seconds}s</span>}
 		</div>
 	);
@@ -261,7 +284,6 @@ function ActionButtons({ data, refresh }) {
 function ShipInfo() {
 	const { store, updateStore } = useContext(DataProvider);
 	const ship = store.ships.find((ship) => ship.symbol === store.shipInfo); // Current selected ship
-	console.log(ship);
 
 	// Opening and closing mechanism
 	const [isOpen, setIsOpen] = useState(store.shipInfo);
@@ -269,6 +291,7 @@ function ShipInfo() {
 	const closeModal = () => updateStore({ shipInfo: null });
 	if (!store.shipInfo) return null;
 
+	console.log(ship);
 	return (
 		<Modal isOpen={!!isOpen} overlayClassName="ModalOverlay" className="Modal MarketModal" onRequestClose={closeModal} ariaHideApp={false}>
 			<h1 className="title">Ship Information</h1>
@@ -410,6 +433,18 @@ function OpenShop() {
 								}}>
 								Sell for {selectedItem.sellPrice * amount} credit(s) <TbCoins />
 							</button>
+							<button
+								onClick={() => {
+									CallEndPoint({ endpoint: ENDPOINTS.SELL, params: { ship: ship.symbol }, body: { symbol: selectedItem.symbol, units: selectedItem.units } })
+										.then((res) => {
+											toast.success(`Sold ${selectedItem.units} ${selectedItem.name} for ${selectedItem.sellPrice * selectedItem.units} credit(s)`);
+											const newShipData = store.ships.map((ship) => (ship.symbol === store.marketShip ? { ...ship, cargo: res.data.cargo } : ship));
+											updateStore({ ships: newShipData, credits: res.data.agent.credits });
+										})
+										.catch((err) => toast.error(err.error.message));
+								}}>
+								Sell All!
+							</button>
 						</>
 					)}
 					{mode === "SELL" && Sellables.length === 0 && <div className="MarketWarning">No Sellable Items</div>}
@@ -457,7 +492,7 @@ function OpenShop() {
 function DropDown({ items, update, choice }) {
 	const [dropdownStatus, setDropdownStatus] = useState(false);
 	useEffect(() => {
-		if (!choice.symbol) update(items[0]);
+		if (!choice.symbol || items.find((item) => item.symbol == choice.symbol) === undefined) update(items[0]);
 	}, [items]);
 
 	return (
