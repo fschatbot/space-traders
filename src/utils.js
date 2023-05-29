@@ -10,7 +10,7 @@ function useCountDown(time, callback) {
 		triggered: !callback, // if callback is not provided, it will be considered as triggered
 	});
 	const onTimerEnd = (callback) => setData((prevData) => ({ ...prevData, onEnd: callback, triggered: false }));
-	const setChaseTime = (time) => setData((prevData) => ({ ...prevData, chaseTime: time }));
+	const setChaseTime = (time) => setData((prevData) => ({ ...prevData, chaseTime: new Date(time), triggered: false }));
 
 	const [timeLeft, setTimeLeft] = useState(getLeftTime());
 
