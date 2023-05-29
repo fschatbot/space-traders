@@ -40,7 +40,7 @@ function useCountDown(time, callback) {
 				data.onEnd();
 				setData((prevData) => ({ ...prevData, triggered: true }));
 			}
-			setTimeLeft(newTime);
+			if (JSON.stringify(newTime) !== JSON.stringify(timeLeft)) setTimeLeft(newTime);
 		}, updateInterval);
 		return () => clearInterval(interval);
 	}, [data]);
