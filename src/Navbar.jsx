@@ -2,6 +2,13 @@ import { ENDPOINTS, CallEndPoint, DataProvider } from "./spaceAPI";
 import { NavLink } from "react-router-dom";
 import "./styles/navbar.css";
 import { useContext, useEffect } from "react";
+
+// Icons
+import { LuRocket } from "react-icons/lu";
+import { BsFileEarmarkMedical, BsShop } from "react-icons/bs";
+import { GiShipWheel } from "react-icons/gi";
+import { FaMapSigns } from "react-icons/fa";
+import { SiInstatus } from "react-icons/si";
 import { TbCoins } from "react-icons/tb";
 
 export default function NavBar() {
@@ -13,19 +20,22 @@ export default function NavBar() {
 	return (
 		<div className="navbar">
 			<NavLink to="/ships" className={({ isActive }) => (isActive ? "active" : "")}>
-				Ships
+				<LuRocket /> Ships
 			</NavLink>
 			<NavLink to="/contracts" className={({ isActive }) => (isActive ? "active" : "")}>
-				Contracts
+				<BsFileEarmarkMedical /> Contracts
 			</NavLink>
 			<NavLink to="/shipyard" className={({ isActive }) => (isActive ? "active" : "")}>
-				Shipyard
+				<GiShipWheel /> Shipyard
 			</NavLink>
 			<NavLink to="/market" className={({ isActive }) => (isActive ? "active" : "")}>
-				Market Place
+				<BsShop /> Market Place
 			</NavLink>
 			<NavLink to="/map" className={({ isActive }) => (isActive ? "active" : "")}>
-				Map
+				<FaMapSigns /> Map
+			</NavLink>
+			<NavLink to="/status" className={({ isActive }) => (isActive ? "active" : "")}>
+				<SiInstatus /> Status
 			</NavLink>
 			<span className="nameContainer">
 				<label className="username">{store.name || "<name>"}</label>

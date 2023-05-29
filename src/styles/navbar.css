@@ -5,6 +5,10 @@
 	fixed top-0 left-0 z-50;
 }
 
+.navbar a {
+	@apply flex flex-row items-center justify-center gap-1;
+}
+
 .navbar .nameContainer {
 	@apply flex flex-row gap-1;
 }
