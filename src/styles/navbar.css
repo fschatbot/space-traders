@@ -14,8 +14,8 @@
 }
 
 .navbar .nameContainer > * {
-	@apply px-6 py-2 bg-slate-800 rounded-3xl border border-slate-700
-	first:rounded-r-md last:rounded-l-md
+	@apply px-6 py-2 bg-slate-800 rounded-md border border-slate-700
+	first:rounded-l-3xl last:rounded-r-3xl
 	flex flex-row gap-2 items-center justify-center;
 }
 
