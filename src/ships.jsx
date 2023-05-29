@@ -13,6 +13,8 @@ import { HiOutlineLocationMarker, HiChevronDown, HiOutlineRefresh } from "react-
 import { CgClose, CgScrollV } from "react-icons/cg";
 import { BsShop, BsFillFuelPumpFill } from "react-icons/bs";
 import { TbCoins } from "react-icons/tb";
+import { FaRegLaughBeam } from "react-icons/fa";
+import { LuFuel, LuUsers, LuAngry, LuAnnoyed, LuFrown, LuMeh, LuSmile, LuZap, LuGauge } from "react-icons/lu";
 
 export default function Ships() {
 	const { store, updateStore } = useContext(DataProvider);
@@ -75,18 +77,42 @@ function ShowShip({ data }) {
 
 	const refreshShipCallBack = useCallback(refreshShip, []);
 
+	const MoralIcons = [<LuAngry />, <LuAnnoyed />, <LuFrown />, <LuMeh />, <LuSmile />, <FaRegLaughBeam />];
+
 	return (
 		<div className="shipContainer">
 			<h1 className="title">
 				<BiInfoCircle className="cursor-pointer" onClick={() => updateStore({ shipInfo: data.symbol })} /> {data.symbol}
 			</h1>
 			<div className="shipInfo">
-				<div className="fuelContainer">
-					<h2>
-						Fuel: {data.fuel.current}/{data.fuel.capacity}
-					</h2>
-					<div className="fuelBar">
-						<div className="fuel" style={{ width: `${(data.fuel.current / data.fuel.capacity) * 100}%` }} />
+				<div className="basiInfo">
+					<div className="fuelContainer">
+						<h2>
+							<LuFuel /> Fuel: {data.fuel.current}/{data.fuel.capacity}
+						</h2>
+						<div className="progress">
+							<div className="bar" style={{ width: `${(data.fuel.current / data.fuel.capacity) * 100}%` }} />
+						</div>
+					</div>
+					<div className="crewContainer">
+						<h2 title={`Atleast ${data.crew.required} people are required`}>
+							<LuUsers /> Crew: {data.crew.current}/{data.crew.capacity}
+						</h2>
+						<div className="progress">
+							<div className="bar" style={{ width: `${(data.crew.current / data.crew.capacity) * 100}%` }} />
+							{data.crew.required && <div className="threshold" style={{ left: `${(data.crew.required / data.crew.capacity) * 100}%` }} />}
+						</div>
+					</div>
+					<div className="quickInfo">
+						<span title="Power">
+							<LuZap /> {data.reactor.powerOutput}
+						</span>
+						<span title="Morale">
+							{MoralIcons[Math.round(((MoralIcons.length - 1) * data.crew.morale) / 100)]} {data.crew.morale}
+						</span>
+						<span title="Speed">
+							<LuGauge /> {data.engine.speed}
+						</span>
 					</div>
 				</div>
 				<div className="cargo">
