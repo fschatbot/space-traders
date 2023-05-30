@@ -153,6 +153,90 @@ class API_ERROR extends Error {
 	}
 }
 
+function trueTimeout(func, ms, ...args) {
+	let chase = new Date().getTime() + ms;
+	let id = setInterval(() => {
+		let delta = chase - new Date().getTime();
+		if (delta <= 0) {
+			clearInterval(id);
+			func(...args);
+		}
+	}, ms / 10); // Just to be 10 times more sure
+}
+
+// This rate-limitting code was made by Leaf#1950 (493775082389241859)
+export class Bucket {
+	constructor(count, interval) {
+		this.count = count;
+		this.interval = interval;
+		this.current = { count: 0, start: 0 };
+	}
+
+	get expired() {
+		return this.current.start + this.interval < Date.now();
+	}
+
+	get remaining() {
+		return this.expired ? this.count : Math.max(this.count - this.current.count, 0);
+	}
+
+	get full() {
+		return !this.remaining;
+	}
+
+	add() {
+		if (this.full) throw Object.assign(new Error("Bucket is full"), { bucket: this });
+		if (this.expired) {
+			this.current = { count: 1, start: Date.now() };
+		} else {
+			this.current.count++;
+		}
+	}
+}
+
+export class Ratelimiter {
+	#queue;
+	#buckets;
+
+	constructor(buckets) {
+		this.#queue = [];
+		this.#buckets = buckets.map((bucket) => new Bucket(bucket.count, bucket.interval));
+	}
+
+	async #emptyQueue() {
+		while (this.#queue.length) {
+			if (this.#buckets.every((bucket) => bucket.full)) {
+				// If all are full, then wait for one to expire
+				const timeout = Math.min(...this.#buckets.map((bucket) => bucket.current.start + bucket.interval)) - Date.now();
+				await new Promise((resolve) => trueTimeout(resolve, timeout));
+			} else {
+				// If one is empty then add to it
+				// Putting it inside else eliminates the problems faced by timeouts not being perfect
+				this.#buckets.find((bucket) => !bucket.full).add();
+				this.#queue.shift()();
+			}
+		}
+	}
+
+	queue() {
+		const promise = new Promise((resolve) => {
+			this.#queue.push(resolve);
+		});
+		if (this.#queue.length === 1) this.#emptyQueue();
+		return promise;
+	}
+}
+
+const ratelimiter = new Ratelimiter([
+	{ count: 2, interval: 1_000 },
+	{ count: 10, interval: 10_000 },
+]);
+
+async function ratelimitedFetch(...args) {
+	await ratelimiter.queue();
+	return fetch(...args);
+}
+
 // This function is responsible for calling the API
 // token: boolean - If the endpoint requires a token
 // body: object - The body of the request
@@ -249,7 +333,7 @@ function CallEndPoint({ endpoint, token, body = {}, method, params, limit, page,
 
 	debug && console.log("Calling endpoint:", url, options);
 	// Fetching the data
-	return fetch(url, options).then((response) => {
+	return ratelimitedFetch(url, options).then((response) => {
 		return response.json().then((data) => {
 			if (!response.ok || data.error) {
 				errors.push(data);

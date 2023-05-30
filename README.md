@@ -65,8 +65,8 @@ This a complete control dashboard for the API game [Space-Traders](https://space
   - [ ] Inbuilt error handling (certain extent) and error toast (optional)
   - [ ] Caching certain responses in IndexedDB (optional: adding expiration time)
   - [ ] `No-Token` Error Handling
-  - [ ] Rate Limiting (Optional)
-  - [ ] Checking if the endpoint can even be execute (highly optional)
+  - [x] Rate Limiting (Optional)
+  - [ ] Checking if the endpoint can even be executed (highly optional)
   - [ ] Implement System and Waypoint Verification
   - [ ] React Hook for the API
 - [ ] Automation
