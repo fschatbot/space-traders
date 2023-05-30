@@ -4,10 +4,9 @@ import "./styles/navbar.css";
 import { useContext, useEffect } from "react";
 
 // Icons
-import { LuRocket } from "react-icons/lu";
+import { LuRocket, LuOrbit } from "react-icons/lu";
 import { BsFileEarmarkMedical, BsShop } from "react-icons/bs";
 import { GiShipWheel } from "react-icons/gi";
-import { FaMapSigns } from "react-icons/fa";
 import { SiInstatus } from "react-icons/si";
 import { TbCoins } from "react-icons/tb";
 
@@ -32,7 +31,7 @@ export default function NavBar() {
 				<BsShop /> Market Place
 			</NavLink>
 			<NavLink to="/map" className={({ isActive }) => (isActive ? "active" : "")}>
-				<FaMapSigns /> Map
+				<LuOrbit /> Map
 			</NavLink>
 			<NavLink to="/status" className={({ isActive }) => (isActive ? "active" : "")}>
 				<SiInstatus /> Status
