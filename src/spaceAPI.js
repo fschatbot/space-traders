@@ -141,6 +141,18 @@ const ENDPOINTS = {
 const responses = [];
 const errors = [];
 
+class API_ERROR extends Error {
+	constructor({ endpoint, error }) {
+		super(error.error);
+
+		console.warn(error.error.message, error);
+
+		this.endpoint = endpoint;
+		this.error = error.error;
+		this.message = error.error.message;
+	}
+}
+
 // This function is responsible for calling the API
 // token: boolean - If the endpoint requires a token
 // body: object - The body of the request
@@ -241,8 +253,8 @@ function CallEndPoint({ endpoint, token, body = {}, method, params, limit, page,
 		return response.json().then((data) => {
 			if (!response.ok || data.error) {
 				errors.push(data);
-				debug && console.warn("Error:", data);
-				if (!debug) throw data;
+				if (debug) console.warn("Error:", data);
+				else throw new API_ERROR({ endpoint: url, error: data });
 			} else {
 				responses.push(data);
 				debug && console.info("Response:", data);

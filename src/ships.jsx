@@ -14,7 +14,7 @@ import { CgClose, CgScrollV } from "react-icons/cg";
 import { BsShop, BsFillFuelPumpFill } from "react-icons/bs";
 import { TbCoins } from "react-icons/tb";
 import { FaRegLaughBeam } from "react-icons/fa";
-import { LuFuel, LuUsers, LuAngry, LuAnnoyed, LuFrown, LuMeh, LuSmile, LuZap, LuGauge } from "react-icons/lu";
+import { LuFuel, LuUsers, LuAngry, LuAnnoyed, LuFrown, LuMeh, LuSmile, LuZap, LuGauge, LuTimerReset } from "react-icons/lu";
 
 export default function Ships() {
 	const { store, updateStore } = useContext(DataProvider);
@@ -69,9 +69,12 @@ function ShowShip({ data }) {
 
 		// Navigate the ship to the new route
 		CallEndPoint({ endpoint: ENDPOINTS.NAVIGATE, body: { waypointSymbol: NavigationRef.current.value }, params: { ship: data.symbol } })
-			.then((response) => toast.success("The ship's new destination has been set"))
-			.then(refreshShip)
-			.catch((error) => toast.error(error.message))
+			.then(() => toast.success("The ship's new destination has been set"))
+			.then(() => refreshShip())
+			.catch((error) => {
+				NavigationActionRef.current.classList.add("error");
+				toast.error(error.message);
+			})
 			.finally(() => NavigationActionRef.current.classList.remove("pending"));
 	}
 
@@ -302,7 +305,11 @@ function ActionButtons({ data, refresh }) {
 				</button>
 			)}
 			{MineableLocation && CanMine && <button onClick={() => setAutoMine(!autoMine)}>{!autoMine ? "Enable" : "Disable"} AutoMine</button>}
-			{timeLeft.total_seconds > 0 && <span>Cooldown: {timeLeft.total_seconds}s</span>}
+			{timeLeft.total_seconds > 0 && (
+				<span>
+					<LuTimerReset /> Cooldown: {timeLeft.total_seconds}s
+				</span>
+			)}
 		</div>
 	);
 }
@@ -367,7 +374,7 @@ function Eject() {
 								console.log(newShipData, res.data);
 								updateStore({ ships: newShipData });
 							})
-							.catch((err) => toast.error(err.error.message));
+							.catch((err) => toast.error(err.message));
 					}}>
 					Eject {amount} &times; {selectedItem.name} into space!
 				</button>
@@ -396,7 +403,7 @@ function OpenShop() {
 				},
 			})
 				.then((res) => setMarket(res.data))
-				.catch((err) => toast.error(err.error.message));
+				.catch((err) => toast.error(err.message));
 		}
 	}, [store.marketShip]);
 
@@ -455,7 +462,7 @@ function OpenShop() {
 											const newShipData = store.ships.map((ship) => (ship.symbol === store.marketShip ? { ...ship, cargo: res.data.cargo } : ship));
 											updateStore({ ships: newShipData, credits: res.data.agent.credits });
 										})
-										.catch((err) => toast.error(err.error.message));
+										.catch((err) => toast.error(err.message));
 								}}>
 								Sell for {selectedItem.sellPrice * amount} credit(s) <TbCoins />
 							</button>
@@ -467,7 +474,7 @@ function OpenShop() {
 											const newShipData = store.ships.map((ship) => (ship.symbol === store.marketShip ? { ...ship, cargo: res.data.cargo } : ship));
 											updateStore({ ships: newShipData, credits: res.data.agent.credits });
 										})
-										.catch((err) => toast.error(err.error.message));
+										.catch((err) => toast.error(err.message));
 								}}>
 								Sell All!
 							</button>
@@ -488,7 +495,7 @@ function OpenShop() {
 											const newShipData = store.ships.map((ship) => (ship.symbol === store.marketShip ? { ...ship, cargo: res.data.cargo } : ship));
 											updateStore({ ships: newShipData, credits: res.data.agent.credits });
 										})
-										.catch((err) => toast.error(err.error.message));
+										.catch((err) => toast.error(err.message));
 								}}>
 								Buy for {selectedItem.sellPrice * amount} credit(s) <TbCoins />
 							</button>
