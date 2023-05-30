@@ -24,10 +24,10 @@ This a complete control dashboard for the API game [Space-Traders](https://space
   - [ ] Collection of rewards
 - [ ] Ships
   - [x] View Details
-  - [ ] View Cargo (Allow for ejection)
-  - [ ] Refuel (If Possible)
-  - [ ] Location, Destination (setting and viewing), Duration
-  - [ ] Mining (If possible)
+  - [x] View Cargo (Allow for ejection)
+  - [x] Refuel (If Possible)
+  - [x] Location, Destination (setting and viewing), Duration
+  - [x] Mining (If possible)
   - [x] Switching ship modes
   - [ ] Delivering Cargo for contracts
   - [x] Switching between Orbiting and Docking
