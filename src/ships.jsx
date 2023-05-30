@@ -14,7 +14,7 @@ import { CgClose, CgScrollV } from "react-icons/cg";
 import { BsShop, BsFillFuelPumpFill } from "react-icons/bs";
 import { TbCoins } from "react-icons/tb";
 import { FaRegLaughBeam } from "react-icons/fa";
-import { LuFuel, LuUsers, LuAngry, LuAnnoyed, LuFrown, LuMeh, LuSmile, LuZap, LuGauge, LuTimerReset } from "react-icons/lu";
+import { LuFuel, LuUsers, LuAngry, LuAnnoyed, LuFrown, LuMeh, LuSmile, LuZap, LuGauge, LuTimerReset, LuPackage } from "react-icons/lu";
 
 export default function Ships() {
 	const { store, updateStore } = useContext(DataProvider);
@@ -57,6 +57,7 @@ function ShowShip({ data }) {
 	}
 
 	function NavigateShip() {
+		if (NavigationActionRef.current.classList.contains("pending")) return toast.warn("Please wait!");
 		NavigationActionRef.current.classList.add("pending");
 		NavigationActionRef.current.classList.remove("error");
 		// Basic verfication for quick response and decreased API call
@@ -119,8 +120,8 @@ function ShowShip({ data }) {
 					</div>
 				</div>
 				<div className="cargo">
-					<h2>
-						Cargo: <strong>{data.cargo.units}</strong> units out of <strong>{data.cargo.capacity}</strong> units
+					<h2 className="textAlign">
+						<LuPackage /> Cargo: <strong>{data.cargo.units}</strong> units out of <strong>{data.cargo.capacity}</strong> units
 					</h2>
 					<ul>
 						{data.cargo.inventory.map((item) => (
@@ -257,7 +258,7 @@ function ActionButtons({ data, refresh }) {
 		(contract) =>
 			contract.accepted &&
 			!contract.fullfilled &&
-			contract.terms.deliver.find((deliver) => deliver.destinationSymbol === data.nav.waypointSymbol && deliver.unitsFulFilled < deliver.unitsRequired) !== undefined
+			contract.terms.deliver.find((deliver) => deliver.destinationSymbol === data.nav.waypointSymbol && deliver.unitsFulfilled < deliver.unitsRequired) !== undefined
 	);
 	// console.log(contracts);
 
@@ -266,7 +267,6 @@ function ActionButtons({ data, refresh }) {
 			<button onClick={ToggleOrbit} disabled={data.nav.status === "IN_TRANSIT"}>
 				{statusActionMap[data.nav.status].title()}
 			</button>
-			<button>Deliver</button>
 			<div
 				className="dropdownGroup"
 				onMouseLeave={() => {
@@ -293,6 +293,7 @@ function ActionButtons({ data, refresh }) {
 					))}
 				</div>
 			</div>
+			{contracts.length > 0 && <button>Deliver</button>}
 			{CanRefine && <button>Refine</button>}
 			{MineableLocation && CanMine && (
 				<button onClick={() => Mine()} disabled={isNotInMineState}>
@@ -525,8 +526,8 @@ function OpenShop() {
 function DropDown({ items, update, choice }) {
 	const [dropdownStatus, setDropdownStatus] = useState(false);
 	useEffect(() => {
-		if (!choice.symbol || items.find((item) => item.symbol == choice.symbol) === undefined) update(items[0]);
-	}, [items]);
+		if (!choice.symbol || items.find((item) => item.symbol === choice.symbol) === undefined) update(items[0]);
+	}, [items, choice]);
 
 	return (
 		<div className="dropdownGroup">
