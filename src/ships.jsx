@@ -11,10 +11,10 @@ import { BsEjectFill } from "react-icons/bs";
 import { BiCurrentLocation } from "react-icons/bi";
 import { HiOutlineLocationMarker, HiChevronDown, HiOutlineRefresh } from "react-icons/hi";
 import { CgClose, CgScrollV } from "react-icons/cg";
-import { BsShop, BsFillFuelPumpFill } from "react-icons/bs";
-import { TbCoins } from "react-icons/tb";
+import { BsShop, BsFillFuelPumpFill, BsPatchCheck } from "react-icons/bs";
+import { TbCoins, TbRotateClockwise2 } from "react-icons/tb";
 import { FaRegLaughBeam } from "react-icons/fa";
-import { LuFuel, LuUsers, LuAngry, LuAnnoyed, LuFrown, LuMeh, LuSmile, LuZap, LuGauge, LuTimerReset, LuPackage } from "react-icons/lu";
+import { LuFuel, LuUsers, LuAngry, LuAnnoyed, LuFrown, LuMeh, LuSmile, LuZap, LuGauge, LuTimerReset, LuPackage, LuBoxSelect } from "react-icons/lu";
 
 export default function Ships() {
 	const { store, updateStore } = useContext(DataProvider);
@@ -325,14 +325,83 @@ function ShipInfo() {
 	const closeModal = () => updateStore({ shipInfo: null });
 	if (!store.shipInfo) return null;
 
+	// All the actual variables start from here
+	const MoralIcons = [<LuAngry />, <LuAnnoyed />, <LuFrown />, <LuMeh />, <LuSmile />, <FaRegLaughBeam />];
+
 	console.log(ship);
+
+	function Component({name}) {
+		return <div className={name}>
+			<h2>{name.title()}</h2>
+			<h3 className="flex-grow">
+				{ship[name].name}: {ship[name].description}
+			</h3>
+			<div className="basic">
+				<span title="condition">
+					<BsPatchCheck /> {ship[name].condition}
+				</span>
+				{ship[name].requirements.power && (
+					<span title="power">
+						<LuZap /> {ship[name].requirements.power}
+					</span>
+				)}
+				{ship[name].requirements.crew && (
+					<span title="crew">
+						<LuUsers /> {ship[name].requirements.crew}
+					</span>
+				)}
+				{ship[name].requirements.slots && (
+					<span title="slots">
+						<LuBoxSelect /> {ship[name].requirements.slots}
+					</span>
+				)}
+			</div>
+		</div>;
+	}
+
 	return (
-		<Modal isOpen={!!isOpen} overlayClassName="ModalOverlay" className="Modal MarketModal" onRequestClose={closeModal} ariaHideApp={false}>
-			<h1 className="title">Ship Information</h1>
+		<Modal isOpen={!!isOpen} overlayClassName="ModalOverlay" className="Modal InfoModal" onRequestClose={closeModal} ariaHideApp={false}>
+			<h1 className="title">{ship.registration.name}</h1>
 			<button onClick={closeModal} className="close">
 				<CgClose />
 			</button>
-			<div className="content">Currently Under Construction. Please check back later!</div>
+			<div className="content">
+				<div className="initial">
+					Faction: {ship.registration.factionSymbol.title()} <br />
+					Role: {ship.registration.role.title()} <br />
+				</div>
+				<div className="basic">
+					<span title="Fuel">
+						<LuFuel /> {ship.fuel.current}/{ship.fuel.capacity}
+					</span>
+					<span title="Cargo">
+						<LuPackage /> {ship.cargo.units}/{ship.cargo.capacity}
+					</span>
+					<span title="Crew">
+						<LuUsers /> {ship.crew.current}/{ship.crew.capacity}
+					</span>
+					<span title="Power">
+						<LuZap /> {ship.reactor.powerOutput}
+					</span>
+					<span title="Morale">
+						{MoralIcons[Math.round(((MoralIcons.length - 1) * ship.crew.morale) / 100)]} {ship.crew.morale}
+					</span>
+					<span title="Wages">
+						<TbCoins /> {ship.crew.wages}
+					</span>
+					<span title={`${ship.crew.rotation === "STRICT" ? "↑" : "↓"} performace, ${ship.crew.rotation === "RELAXED" ? "↑" : "↓"} morale`}>
+						<TbRotateClockwise2 /> {ship.crew.rotation.title()} Rotation
+					</span>
+					<span title="Speed">
+						<LuGauge /> {ship.engine.speed}
+					</span>
+				</div>
+				<div className="componenets">
+					<Component name="frame" />
+					<Component name="engine" />
+					<Component name="reactor" />
+				</div>
+			</div>
 		</Modal>
 	);
 }
