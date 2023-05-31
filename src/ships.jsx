@@ -12,9 +12,9 @@ import { BiCurrentLocation } from "react-icons/bi";
 import { HiOutlineLocationMarker, HiChevronDown, HiOutlineRefresh } from "react-icons/hi";
 import { CgClose, CgScrollV } from "react-icons/cg";
 import { BsShop, BsFillFuelPumpFill, BsPatchCheck } from "react-icons/bs";
-import { TbCoins, TbRotateClockwise2 } from "react-icons/tb";
+import { TbCoins, TbRotateClockwise2, TbRadar } from "react-icons/tb";
 import { FaRegLaughBeam } from "react-icons/fa";
-import { LuFuel, LuUsers, LuAngry, LuAnnoyed, LuFrown, LuMeh, LuSmile, LuZap, LuGauge, LuTimerReset, LuPackage, LuBoxSelect } from "react-icons/lu";
+import { LuFuel, LuUsers, LuAngry, LuAnnoyed, LuFrown, LuMeh, LuSmile, LuZap, LuGauge, LuTimerReset, LuPackage, LuBoxSelect, LuExpand } from "react-icons/lu";
 
 export default function Ships() {
 	const { store, updateStore } = useContext(DataProvider);
@@ -330,33 +330,71 @@ function ShipInfo() {
 
 	console.log(ship);
 
-	function Component({name}) {
-		return <div className={name}>
-			<h2>{name.title()}</h2>
-			<h3 className="flex-grow">
-				{ship[name].name}: {ship[name].description}
-			</h3>
+	function Component({ name }) {
+		return (
+			<div className={name}>
+				<h2>{name.title()}</h2>
+				<h3 className="flex-grow">
+					{ship[name].name}: {ship[name].description}
+				</h3>
+				<div className="basic">
+					<span title="condition">
+						<BsPatchCheck /> {ship[name].condition}%
+					</span>
+					{ship[name].requirements.power && (
+						<span title="required power">
+							<LuZap /> {ship[name].requirements.power}
+						</span>
+					)}
+					{ship[name].requirements.crew && (
+						<span title="required crew">
+							<LuUsers /> {ship[name].requirements.crew}
+						</span>
+					)}
+					{ship[name].requirements.slots && (
+						<span title="required slots">
+							<LuBoxSelect /> {ship[name].requirements.slots}
+						</span>
+					)}
+				</div>
+			</div>
+		);
+	}
+	function AttachmentBasic({ attachment }) {
+		return (
 			<div className="basic">
-				<span title="condition">
-					<BsPatchCheck /> {ship[name].condition}
-				</span>
-				{ship[name].requirements.power && (
-					<span title="power">
-						<LuZap /> {ship[name].requirements.power}
+				{attachment.capacity !== undefined && (
+					<span title="Increased Capacity">
+						<LuExpand /> +{attachment.capacity}
 					</span>
 				)}
-				{ship[name].requirements.crew && (
-					<span title="crew">
-						<LuUsers /> {ship[name].requirements.crew}
+				{attachment.range !== undefined && (
+					<span title="Increased range">
+						<TbRadar /> +{attachment.range}
 					</span>
 				)}
-				{ship[name].requirements.slots && (
-					<span title="slots">
-						<LuBoxSelect /> {ship[name].requirements.slots}
+				{attachment.strength !== undefined && (
+					<span title="Increased strength">
+						<LuZap /> +{attachment.strength}
+					</span>
+				)}
+				{attachment.requirements.power !== undefined && (
+					<span title="required power">
+						<LuZap /> {attachment.requirements.power}
+					</span>
+				)}
+				{attachment.requirements.crew !== undefined && (
+					<span title="required crew">
+						<LuUsers /> {attachment.requirements.crew}
+					</span>
+				)}
+				{attachment.requirements.slots !== undefined && (
+					<span title="required slots">
+						<LuBoxSelect /> {attachment.requirements.slots}
 					</span>
 				)}
 			</div>
-		</div>;
+		);
 	}
 
 	return (
@@ -374,14 +412,17 @@ function ShipInfo() {
 					<span title="Fuel">
 						<LuFuel /> {ship.fuel.current}/{ship.fuel.capacity}
 					</span>
+					<span title="Power">
+						<LuZap /> {ship.reactor.powerOutput}
+					</span>
+					<span title="Speed">
+						<LuGauge /> {ship.engine.speed}
+					</span>
 					<span title="Cargo">
 						<LuPackage /> {ship.cargo.units}/{ship.cargo.capacity}
 					</span>
 					<span title="Crew">
 						<LuUsers /> {ship.crew.current}/{ship.crew.capacity}
-					</span>
-					<span title="Power">
-						<LuZap /> {ship.reactor.powerOutput}
 					</span>
 					<span title="Morale">
 						{MoralIcons[Math.round(((MoralIcons.length - 1) * ship.crew.morale) / 100)]} {ship.crew.morale}
@@ -392,14 +433,39 @@ function ShipInfo() {
 					<span title={`${ship.crew.rotation === "STRICT" ? "↑" : "↓"} performace, ${ship.crew.rotation === "RELAXED" ? "↑" : "↓"} morale`}>
 						<TbRotateClockwise2 /> {ship.crew.rotation.title()} Rotation
 					</span>
-					<span title="Speed">
-						<LuGauge /> {ship.engine.speed}
-					</span>
 				</div>
 				<div className="componenets">
 					<Component name="frame" />
 					<Component name="engine" />
 					<Component name="reactor" />
+				</div>
+				<div className="attachments">
+					<div className="modules">
+						<h2>
+							Modules ({ship.modules.reduce((count, module) => count + module.requirements.slots, 0)}/{ship.frame.moduleSlots})
+						</h2>
+						{ship.modules.map((module) => (
+							<div className="module">
+								<h3>
+									{module.name}: {module.description}
+								</h3>
+								<AttachmentBasic attachment={module} />
+							</div>
+						))}
+					</div>
+					<div className="mounts">
+						<h2>
+							Mounts ({ship.mounts.length}/{ship.frame.mountingPoints})
+						</h2>
+						{ship.mounts.map((mount) => (
+							<div className="mount">
+								<h3>
+									{mount.name}: {mount.description}
+								</h3>
+								<AttachmentBasic attachment={mount} />
+							</div>
+						))}
+					</div>
 				</div>
 			</div>
 		</Modal>

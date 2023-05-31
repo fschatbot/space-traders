@@ -204,6 +204,10 @@
 	text-3xl font-bold;
 }
 
+.InfoModal .content {
+	@apply overflow-y-auto
+}
+
 .InfoModal .basic {
 	@apply flex flex-row gap-1 mt-1
 }
@@ -224,4 +228,12 @@
 
 .InfoModal .componenets > div {
 	@apply flex flex-col
+}
+
+.InfoModal .attachments {
+	@apply grid grid-cols-2 gap-5 mx-5 mt-5
+}
+
+.InfoModal .attachments h2 {
+	@apply text-center text-lg font-bold
 }

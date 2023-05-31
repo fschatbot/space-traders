@@ -24,6 +24,7 @@ This a complete control dashboard for the API game [Space-Traders](https://space
   - [ ] Collection of rewards
 - [ ] Ships
   - [x] View Details
+  - [x] View detailed information
   - [x] View Cargo (Allow for ejection)
   - [x] Refuel (If Possible)
   - [x] Location, Destination (setting and viewing), Duration
